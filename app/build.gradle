@@ -5,10 +5,12 @@ android {
     aaptOptions {
         noCompress 'dat'
     }
+
     defaultConfig {	
         applicationId app_id
         minSdkVersion min_version	
         targetSdkVersion target_version	
+        ndkVersion "21.3.6528147"
         versionCode 1
         versionName '1.0.0'
     }
@@ -48,6 +50,7 @@ android {
             }
         }
     }
+
     compileOptions {	
         sourceCompatibility 1.8	
         targetCompatibility 1.8
