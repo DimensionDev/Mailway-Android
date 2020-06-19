@@ -1,0 +1,2 @@
+rootProject.name = "MailWay"
+include ':app', ':mailwaycore', ':PinyinIME'

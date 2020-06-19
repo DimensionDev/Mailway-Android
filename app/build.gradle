@@ -1,0 +1,62 @@
+apply plugin: "com.android.application"
+
+android {	
+    compileSdkVersion target_version
+    aaptOptions {
+        noCompress 'dat'
+    }
+    defaultConfig {	
+        applicationId app_id
+        minSdkVersion min_version	
+        targetSdkVersion target_version	
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
+        }
+    }
+
+    sourceSets {	
+        main {	
+            manifest.srcFile '../LatinIME/java/AndroidManifest.xml'	
+            java.srcDirs = ['../LatinIME/java/src', '../LatinIME/common/src', '../LatinIME/java-overridable/src', '../inputmethodcommon/java']	
+            res.srcDirs = ['../LatinIME/java/res', '../LatinIME/java-overridable/res']	
+        }
+    }
+
+    externalNativeBuild {
+        ndkBuild {	
+            path "../LatinIME/native/jni/Android.mk"
+        }
+    }
+
+    lintOptions {	
+        abortOnError false	
+        checkReleaseBuilds false
+    }
+
+    defaultConfig {
+        externalNativeBuild {	
+            ndkBuild {	
+                // Suppress build failing warnings from dependencies	
+                cFlags "-w"	
+                arguments "TARGET_BUILD_APPS=true"	
+            }
+        }
+    }
+    compileOptions {	
+        sourceCompatibility 1.8	
+        targetCompatibility 1.8
+    }
+}
+
+dependencies {
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'	
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation project(':mailwaycore')
+    implementation project(':PinyinIME')
+}
