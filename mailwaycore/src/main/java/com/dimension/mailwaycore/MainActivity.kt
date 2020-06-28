@@ -1,7 +1,10 @@
 package com.dimension.mailwaycore
 
 import android.os.Bundle
+import com.dimension.mailwaycore.data.RoomDatabaseMethodCallHandler
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
 
@@ -15,6 +18,14 @@ class MainActivity : FlutterActivity() {
 //                Class.forName("com.android.inputmethod.latin.setup.SetupActivity")
 //            )
 //        )
+    }
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            RoomDatabaseMethodCallHandler.CHANNEL
+        ).setMethodCallHandler(RoomDatabaseMethodCallHandler())
     }
 }
 

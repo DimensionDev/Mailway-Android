@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mailwayui/scene/Contact.dart';
+import 'package:mailwayui/scene/Inbox.dart';
 
 class AppDrawer extends StatelessWidget {
   @override
@@ -12,18 +14,30 @@ class AppDrawer extends StatelessWidget {
                 _DrawerMenuItem(
                   title: "Inbox",
                   icon: Icons.inbox,
+                  color: Colors.lightBlue.shade300,
+                  onTap: () {
+                    Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => InboxScene()));
+                  },
                 ),
                 _DrawerMenuItem(
                   title: "Drafts",
                   icon: Icons.drafts,
+                  color: Colors.orange,
                 ),
                 _DrawerMenuItem(
                   title: "Contacts",
                   icon: Icons.contacts,
+                  color: Colors.green,
+                  onTap: () {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => ContactScene()));
+                  },
                 ),
                 _DrawerMenuItem(
                   title: "Plugins",
                   icon: Icons.pages,
+                  color: Colors.blue,
                 ),
               ],
             ),
@@ -42,8 +56,9 @@ class _DrawerMenuItem extends StatelessWidget {
   final String title;
   final IconData icon;
   final GestureTapCallback onTap;
+  final Color color;
 
-  const _DrawerMenuItem({Key key, this.title, this.icon, this.onTap})
+  const _DrawerMenuItem({Key key, this.title, this.icon, this.onTap, this.color})
       : super(key: key);
 
   @override
@@ -51,7 +66,7 @@ class _DrawerMenuItem extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       title: Text(title),
-      leading: Icon(icon),
+      leading: Icon(icon, color: color),
     );
   }
 }
