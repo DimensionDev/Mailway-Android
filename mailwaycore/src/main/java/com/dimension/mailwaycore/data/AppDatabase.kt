@@ -1,6 +1,5 @@
 package com.dimension.mailwaycore.data
 
-import androidx.compose.staticAmbientOf
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -9,10 +8,9 @@ import com.dimension.mailwaycore.data.dao.ContactDao
 import com.dimension.mailwaycore.data.entity.*
 
 @Database(
-    entities = [Contact::class, ContactChannel::class, Keypair::class, Chat::class, ChatMemberNameStub::class, ChatMessage::class, ChatAndChatMemberNameStubCrossRef::class],
+    entities = [Contact::class, ContactChannel::class, Keypair::class, Chat::class, ChatMemberNameStub::class, ChatMessage::class, ChatAndChatMemberNameStubCrossRef::class, IdentityCard::class],
     version = 1
 )
-
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun contactDao(): ContactDao
@@ -20,4 +18,3 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun chatDao(): ChatDao
 }
 
-val DatabaseAmbient = staticAmbientOf<AppDatabase>()

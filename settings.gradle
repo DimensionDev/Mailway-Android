@@ -1,2 +1,7 @@
 rootProject.name = "MailWay"
 include ':app', ':mailwaycore', ':PinyinIME'
+setBinding(new Binding([gradle: this]))
+evaluate(new File(
+  settingsDir,
+  'mailway_ui/.android/include_flutter.groovy'
+))

@@ -14,3 +14,4 @@ data class ChatMemberNameStub(
     var updated_at: Date,
     var i18nNames: Map<String, String>
 )
+

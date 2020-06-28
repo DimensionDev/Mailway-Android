@@ -1,27 +1,13 @@
 package com.dimension.mailwaycore
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.Providers
-import androidx.ui.core.setContent
-import com.dimension.mailwaycore.data.AppDatabase
-import com.dimension.mailwaycore.data.DatabaseAmbient
-import com.dimension.mailwaycore.ui.MailwayApp
-import org.koin.android.ext.android.inject
+import io.flutter.embedding.android.FlutterActivity
 
-class MainActivity : AppCompatActivity() {
-    private val database by inject<AppDatabase>()
+class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
-            Providers(
-                DatabaseAmbient provides database
-            ) {
-                MailwayApp()
-            }
-        }
 
 //        startActivity(
 //            Intent(
