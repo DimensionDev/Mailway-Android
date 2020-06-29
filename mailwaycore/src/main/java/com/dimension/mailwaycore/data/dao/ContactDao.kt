@@ -6,8 +6,16 @@ import com.dimension.mailwaycore.data.entity.*
 
 @Dao
 interface ContactDao {
+
+    @Transaction
+    @Query("SELECT contact.*, keypair.id as keypair_id, keypair.contactId as keypair_contactId from contact join keypair on keypair.contactId = contact.id where keypair.private_key != null")
+    suspend fun getContactsWithPrivateKey(): List<ContactAndKeyPair>
+
     @Query("SELECT * FROM contact")
     suspend fun getContacts(): List<Contact>
+
+    @Query("SELECT * FROM identitycard")
+    suspend fun getIdentityCard(): List<IdentityCard>
     @Transaction
     @Query("SELECT * FROM contact")
     suspend fun getContactsAndKeyPairs(): List<ContactAndKeyPair>
@@ -28,6 +36,9 @@ interface ContactDao {
     suspend fun update(vararg contacts: Contact)
 
     @Update
+    suspend fun update(vararg identityCard: IdentityCard)
+
+    @Update
     suspend fun update(vararg keypair: Keypair)
 
     @Update
@@ -37,6 +48,9 @@ interface ContactDao {
     suspend fun insert(vararg contacts: Contact)
 
     @Insert
+    suspend fun insert(vararg identityCard: IdentityCard)
+
+    @Insert
     suspend fun insert(vararg keypair: Keypair)
 
     @Insert
@@ -44,6 +58,9 @@ interface ContactDao {
 
     @Delete
     suspend fun delete(contact: Contact)
+
+    @Delete
+    suspend fun delete(identityCard: IdentityCard)
 
     @Delete
     suspend fun delete(keypair: Keypair)

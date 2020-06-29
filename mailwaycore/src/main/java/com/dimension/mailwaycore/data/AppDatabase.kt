@@ -6,8 +6,6 @@ import androidx.room.TypeConverters
 import com.dimension.mailwaycore.data.dao.ChatDao
 import com.dimension.mailwaycore.data.dao.ContactDao
 import com.dimension.mailwaycore.data.entity.*
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
 
 @Database(
     entities = [Contact::class, ContactChannel::class, Keypair::class, Chat::class, ChatMemberNameStub::class, ChatMessage::class, ChatAndChatMemberNameStubCrossRef::class, IdentityCard::class],
@@ -21,12 +19,3 @@ abstract class AppDatabase : RoomDatabase() {
 }
 
 
-class RoomDatabaseMethodCallHandler : MethodChannel.MethodCallHandler {
-    companion object {
-        val CHANNEL = "com.dimension.mailwaycore/database"
-    }
-
-    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-
-    }
-}

@@ -17,6 +17,7 @@ class _ContactSceneState extends State<ContactScene> {
         iconTheme: Theme.of(context).iconTheme,
         textTheme: Theme.of(context).textTheme,
         actionsIconTheme: Theme.of(context).iconTheme,
+        elevation: 0,
         title: Text("Contacts"),
         actions: [
           IconButton(

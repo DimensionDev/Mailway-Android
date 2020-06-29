@@ -6,7 +6,6 @@ import com.dimension.mailwaycore.utils.JSON
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.builtins.serializer
-import java.util.*
 
 class Converters {
     @TypeConverter
@@ -16,17 +15,17 @@ class Converters {
     @TypeConverter
     fun jsonToList(value: String?) = value?.let { JSON.parse(String.serializer().list, it) }
 
-    @TypeConverter
-    fun fromTimestamp(value: Long?) = value?.let { Date(it) }
+//    @TypeConverter
+//    fun fromTimestamp(value: Long?) = value?.let { Date(it) }
+//
+//    @TypeConverter
+//    fun dateToTimestamp(date: Date?) = date?.time
 
-    @TypeConverter
-    fun dateToTimestamp(date: Date?) = date?.time
-
-    @TypeConverter
-    fun stringToUUID(value: String?) = value?.let { UUID.fromString(it) }
-
-    @TypeConverter
-    fun fromUUID(value: UUID?) = value?.toString()
+//    @TypeConverter
+//    fun stringToUUID(value: String?) = value?.let { UUID.fromString(it) }
+//
+//    @TypeConverter
+//    fun fromUUID(value: String?) = value?.toString()
 
     @TypeConverter
     fun stringToPayloadKind(value: String?) = value?.let { PayloadKind.valueOf(it) }

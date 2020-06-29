@@ -12,6 +12,7 @@ class InboxScene extends StatelessWidget {
         iconTheme: Theme.of(context).iconTheme,
         textTheme: Theme.of(context).textTheme,
         actionsIconTheme: Theme.of(context).iconTheme,
+        elevation: 0,
         title: Text("Inbox"),
         actions: [
           IconButton(

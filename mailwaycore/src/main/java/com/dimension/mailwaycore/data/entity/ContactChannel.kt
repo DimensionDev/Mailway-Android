@@ -2,14 +2,15 @@ package com.dimension.mailwaycore.data.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.*
+import kotlinx.serialization.Serializable
 
 @Entity
+@Serializable
 data class ContactChannel(
-    @PrimaryKey var id: UUID,
+    @PrimaryKey var id: String,
     var name: String,
     var value: String,
-    var created_at: Date,
-    var updated_at: Date,
-    var contactId: UUID
+    var created_at: Long,
+    var updated_at: Long,
+    var contactId: String
 )

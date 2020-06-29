@@ -1,6 +1,7 @@
 package com.dimension.mailwaycore
 
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
 import com.dimension.mailwaycore.data.RoomDatabaseMethodCallHandler
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -25,7 +26,7 @@ class MainActivity : FlutterActivity() {
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             RoomDatabaseMethodCallHandler.CHANNEL
-        ).setMethodCallHandler(RoomDatabaseMethodCallHandler())
+        ).setMethodCallHandler(RoomDatabaseMethodCallHandler(lifecycleScope))
     }
 }
 

@@ -2,15 +2,16 @@ package com.dimension.mailwaycore.data.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.*
+import kotlinx.serialization.Serializable
 
 @Entity
+@Serializable
 data class Keypair(
-    @PrimaryKey var id: UUID,
+    @PrimaryKey var id: String,
     var key_id: String,
     var private_key: String?,
     var public_key: String,
-    var created_at: Date,
-    var updated_at: Date,
-    var contactId: UUID
+    var created_at: Long,
+    var updated_at: Long,
+    var contactId: String
 )

@@ -7,5 +7,6 @@ AppBarTheme whiteAppBarTheme(BuildContext context) {
     iconTheme: Theme.of(context).iconTheme,
     textTheme: Theme.of(context).textTheme,
     actionsIconTheme: Theme.of(context).iconTheme,
+    elevation: 0,
   );
 }

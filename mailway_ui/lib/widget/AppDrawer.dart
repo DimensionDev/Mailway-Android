@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mailwayui/scene/Contact.dart';
 import 'package:mailwayui/scene/Inbox.dart';
+import 'package:mailwayui/scene/Settings.dart';
 
 class AppDrawer extends StatelessWidget {
   @override
@@ -10,12 +12,14 @@ class AppDrawer extends StatelessWidget {
         children: [
           Expanded(
             child: ListView(
+              physics: BouncingScrollPhysics(),
               children: [
                 _DrawerMenuItem(
                   title: "Inbox",
                   icon: Icons.inbox,
                   color: Colors.lightBlue.shade300,
                   onTap: () {
+                    Navigator.pop(context);
                     Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) => InboxScene()));
                   },
@@ -30,6 +34,7 @@ class AppDrawer extends StatelessWidget {
                   icon: Icons.contacts,
                   color: Colors.green,
                   onTap: () {
+                    Navigator.pop(context);
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
                         builder: (context) => ContactScene()));
                   },
@@ -45,6 +50,11 @@ class AppDrawer extends StatelessWidget {
           _DrawerMenuItem(
             title: "Settings",
             icon: Icons.settings,
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(CupertinoPageRoute(
+                  builder: (_) => SettingsScene(), fullscreenDialog: true));
+            },
           )
         ],
       ),
@@ -58,7 +68,8 @@ class _DrawerMenuItem extends StatelessWidget {
   final GestureTapCallback onTap;
   final Color color;
 
-  const _DrawerMenuItem({Key key, this.title, this.icon, this.onTap, this.color})
+  const _DrawerMenuItem(
+      {Key key, this.title, this.icon, this.onTap, this.color})
       : super(key: key);
 
   @override
