@@ -3,7 +3,7 @@ buildscript {
     ext {
         room_version = "2.2.5"
         kotlin_version = "1.3.72"
-        koin_version = "2.1.5"
+        koin_version = "2.1.6"
     }
     repositories {
         google()
@@ -24,6 +24,9 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://jitpack.io' }
+        maven {
+            url "$rootDir/ntge/NtgeCore-Android/ntge/build/maven"
+        }
     }
 }
 

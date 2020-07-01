@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
+import 'package:mailwayui/scene/Home.dart';
 import 'package:mailwayui/scene/Inbox.dart';
 
 class MailwayApp extends StatelessWidget {
@@ -25,7 +26,7 @@ class MailwayApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: InboxScene(),
+        home: HomeScene(),
       ),
     );
   }

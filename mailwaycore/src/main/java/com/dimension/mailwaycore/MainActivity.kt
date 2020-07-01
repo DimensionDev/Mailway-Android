@@ -3,6 +3,7 @@ package com.dimension.mailwaycore
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.dimension.mailwaycore.data.RoomDatabaseMethodCallHandler
+import com.dimension.mailwaycore.ntge.NtgeMethodCallHandler
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -27,6 +28,10 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             RoomDatabaseMethodCallHandler.CHANNEL
         ).setMethodCallHandler(RoomDatabaseMethodCallHandler(lifecycleScope))
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            NtgeMethodCallHandler.CHANNEL
+        ).setMethodCallHandler(NtgeMethodCallHandler())
     }
 }
 

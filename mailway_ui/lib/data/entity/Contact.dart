@@ -10,6 +10,7 @@ class Contact {
   String name;
   String avatar;
   String note;
+  String color;
   int created_at;
   int updated_at;
   Map<String, String> i18nNames;
@@ -19,6 +20,7 @@ class Contact {
     this.name,
     this.avatar,
     this.note,
+    this.color,
     this.created_at,
     this.updated_at,
     this.i18nNames,

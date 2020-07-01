@@ -8,6 +8,12 @@ class InboxScene extends StatelessWidget {
     return Scaffold(
       body: Container(),
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: () {
+            Scaffold.of(context).openDrawer();
+          },
+        ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         iconTheme: Theme.of(context).iconTheme,
         textTheme: Theme.of(context).textTheme,
@@ -25,7 +31,6 @@ class InboxScene extends StatelessWidget {
           ),
         ],
       ),
-      drawer: AppDrawer(),
       floatingActionButton: SpeedDial(
         overlayOpacity: 0,
         child: Icon(Icons.add),

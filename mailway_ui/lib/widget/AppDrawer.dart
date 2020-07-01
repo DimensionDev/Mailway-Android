@@ -1,12 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mailwayui/data/AppViewModel.dart';
 import 'package:mailwayui/scene/Contact.dart';
 import 'package:mailwayui/scene/Inbox.dart';
 import 'package:mailwayui/scene/Settings.dart';
+import 'package:mailwayui/widget/ExpansionTileEx.dart';
+import 'package:mailwayui/widget/IdentityItem.dart';
 
 class AppDrawer extends StatelessWidget {
+  final GlobalKey navigatorKey;
+
+  const AppDrawer({Key key, this.navigatorKey}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    final appData = AppData.of(context);
     return Drawer(
       child: Column(
         children: [
@@ -14,15 +22,27 @@ class AppDrawer extends StatelessWidget {
             child: ListView(
               physics: BouncingScrollPhysics(),
               children: [
-                _DrawerMenuItem(
-                  title: "Inbox",
-                  icon: Icons.inbox,
-                  color: Colors.lightBlue.shade300,
+                ExpansionTileEx(
+                  title: Text("Inbox"),
+                  leading: Icon(
+                    Icons.inbox,
+                    color: Colors.lightBlue.shade300,
+                  ),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.of(context).pushReplacement(
+                    (navigatorKey.currentState as NavigatorState).pushReplacement(
                         MaterialPageRoute(builder: (context) => InboxScene()));
                   },
+                  children: appData.myKeys
+                      .map(
+                        (e) => IdentityItem(
+                          contact: e.contact,
+                          keypair: e.keypair,
+                          onTap: () {},
+                        ),
+                      )
+                      .toList(),
+                  childrenPadding: EdgeInsets.only(left: 40),
                 ),
                 _DrawerMenuItem(
                   title: "Drafts",
@@ -35,7 +55,7 @@ class AppDrawer extends StatelessWidget {
                   color: Colors.green,
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    (navigatorKey.currentState as NavigatorState).pushReplacement(MaterialPageRoute(
                         builder: (context) => ContactScene()));
                   },
                 ),

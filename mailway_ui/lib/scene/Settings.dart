@@ -31,7 +31,13 @@ class _SettingsSceneState extends State<SettingsScene> {
               leading: Icon(Icons.account_circle),
               title: Text("Identity"),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => IdentityManagementScene()));
+                Navigator.of(
+                  context,
+                ).push(
+                  MaterialPageRoute(
+                    builder: (context) => IdentityManagementScene(),
+                  ),
+                );
               },
             )
           ],

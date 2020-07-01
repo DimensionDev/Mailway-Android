@@ -19,20 +19,23 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        val table = call.argument<String>("table") ?: kotlin.run {
-            result.error("01", "argument exception", null)
-            return
-        }
-        when (call.method) {
-            "getContactsWithPrivateKey" -> {
-                scope.launch {
-                    database.contactDao().getContactsWithPrivateKey().let {
-                        JSON.stringify(ContactAndKeyPair.serializer().list, it)
-                    }.let {
-                        result.success(it)
-                    }
+        if (call.method == "getContactsWithPrivateKey") {
+            scope.launch {
+                database.contactDao().getContactsWithPrivateKey().let {
+                    JSON.stringify(ContactAndKeyPairWithContactChannels.serializer().list, it)
+                }.let {
+                    result.success(it)
                 }
             }
+            return
+        }
+
+        val table = call.argument<String>("table") ?: kotlin.run {
+            result.error("01", "argument exception", "require table name")
+            return
+        }
+        
+        when (call.method) {
             "query" -> {
                 scope.launch {
                     val data = when (table) {
@@ -65,7 +68,7 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
                                 JSON.stringify(IdentityCard.serializer().list, it)
                             }
                         else -> {
-                            result.error("02", "argument out of range exception", null)
+                            result.error("02", "argument out of range exception", "unknown table name $table")
                             null
                         }
                     }
@@ -76,7 +79,7 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
             }
             "insert" -> {
                 val json = call.argument<String>("data") ?: kotlin.run {
-                    result.error("01", "argument exception", null)
+                    result.error("01", "argument exception", "require insert data")
                     return
                 }
                 scope.launch {
@@ -124,7 +127,7 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
                             }
                         }
                         else -> {
-                            result.error("02", "argument out of range exception", null)
+                            result.error("02", "argument out of range exception", "unknown table name $table")
                         }
                     }
                 }
@@ -179,7 +182,7 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
                             }
                         }
                         else -> {
-                            result.error("02", "argument out of range exception", null)
+                            result.error("02", "argument out of range exception", "unknown table name $table")
                         }
                     }
                 }
@@ -234,7 +237,7 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
                             }
                         }
                         else -> {
-                            result.error("02", "argument out of range exception", null)
+                            result.error("02", "argument out of range exception", "unknown table name $table")
                         }
                     }
                 }

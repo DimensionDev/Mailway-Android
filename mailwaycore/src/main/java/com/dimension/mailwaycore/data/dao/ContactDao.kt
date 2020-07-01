@@ -8,8 +8,8 @@ import com.dimension.mailwaycore.data.entity.*
 interface ContactDao {
 
     @Transaction
-    @Query("SELECT contact.*, keypair.id as keypair_id, keypair.contactId as keypair_contactId from contact join keypair on keypair.contactId = contact.id where keypair.private_key != null")
-    suspend fun getContactsWithPrivateKey(): List<ContactAndKeyPair>
+    @Query("SELECT contact.*, keypair.id as keypair_id, keypair.contactId as keypair_contactId from contact join keypair on keypair.contactId = contact.id where keypair.private_key IS NOT NULL")
+    suspend fun getContactsWithPrivateKey(): List<ContactAndKeyPairWithContactChannels>
 
     @Query("SELECT * FROM contact")
     suspend fun getContacts(): List<Contact>

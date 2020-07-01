@@ -1,0 +1,3 @@
+[submodule "ntge"]
+	path = ntge
+	url = https://github.com/DimensionDev/ntge.git

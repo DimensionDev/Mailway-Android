@@ -9,6 +9,7 @@ import 'package:mailwayui/data/entity/ChatWithChatMemberNameStubs.dart';
 import 'package:mailwayui/data/entity/ChatWithChatMessages.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/ContactAndKeyPair.dart';
+import 'package:mailwayui/data/entity/ContactAndKeyPairWithContactChannels.dart';
 import 'package:mailwayui/data/entity/ContactChannel.dart';
 import 'package:mailwayui/data/entity/ContactWithChannels.dart';
 import 'package:mailwayui/data/entity/IdentityCard.dart';
@@ -18,15 +19,15 @@ class AppDatabase {
   final databaseChannel =
       const MethodChannel('com.dimension.mailwaycore/database');
 
-  Future<List<ContactAndKeyPair>> getContactsWithPrivateKey() async {
+  Future<List<ContactAndKeyPairWithContactChannels>> getContactsWithPrivateKey() async {
     final jsonData = await databaseChannel.invokeMethod("getContactsWithPrivateKey");
-    return (json.decode(jsonData) as List).map((e) => ContactAndKeyPair.fromJson(e));
+    return (json.decode(jsonData) as List).map((e) => ContactAndKeyPairWithContactChannels.fromJson(e)).toList();
   }
 
   Future<List<Chat>> getChats() async {
     final jsonData =
         await databaseChannel.invokeMethod("query", {"table": "Chats"});
-    return (json.decode(jsonData) as List).map((e) => Chat.fromJson(e));
+    return (json.decode(jsonData) as List).map((e) => Chat.fromJson(e)).toList();
   }
 
   Future<List<ChatWithChatMemberNameStubs>>
@@ -34,14 +35,14 @@ class AppDatabase {
     final jsonData = await databaseChannel
         .invokeMethod("query", {"table": "ChatWithChatMemberNameStubs"});
     return (json.decode(jsonData) as List)
-        .map((e) => ChatWithChatMemberNameStubs.fromJson(e));
+        .map((e) => ChatWithChatMemberNameStubs.fromJson(e)).toList();
   }
 
   Future<List<ChatWithChatMessages>> getChatWithChatMessages() async {
     final jsonData = await databaseChannel
         .invokeMethod("query", {"table": "ChatWithChatMessages"});
     return (json.decode(jsonData) as List)
-        .map((e) => ChatWithChatMessages.fromJson(e));
+        .map((e) => ChatWithChatMessages.fromJson(e)).toList();
   }
 
   Future<List<ChatMemberNameStubWithChats>>
@@ -49,34 +50,34 @@ class AppDatabase {
     final jsonData = await databaseChannel
         .invokeMethod("query", {"table": "ChatMemberNameStubWithChats"});
     return (json.decode(jsonData) as List)
-        .map((e) => ChatMemberNameStubWithChats.fromJson(e));
+        .map((e) => ChatMemberNameStubWithChats.fromJson(e)).toList();
   }
 
   Future<List<Contact>> getContacts() async {
     final jsonData =
         await databaseChannel.invokeMethod("query", {"table": "Contact"});
-    return (json.decode(jsonData) as List).map((e) => Contact.fromJson(e));
+    return (json.decode(jsonData) as List).map((e) => Contact.fromJson(e)).toList();
   }
 
   Future<List<ContactAndKeyPair>> getContactsAndKeyPairs() async {
     final jsonData = await databaseChannel
         .invokeMethod("query", {"table": "ContactAndKeyPair"});
     return (json.decode(jsonData) as List)
-        .map((e) => ContactAndKeyPair.fromJson(e));
+        .map((e) => ContactAndKeyPair.fromJson(e)).toList();
   }
 
   Future<List<ContactWithChannels>> getContactsWithChannels() async {
     final jsonData = await databaseChannel
         .invokeMethod("query", {"table": "ContactWithChannels"});
     return (json.decode(jsonData) as List)
-        .map((e) => ContactWithChannels.fromJson(e));
+        .map((e) => ContactWithChannels.fromJson(e)).toList();
   }
 
   Future<List<IdentityCard>> getIdentityCard() async {
     final jsonData = await databaseChannel
         .invokeMethod("query", {"table": "IdentityCard"});
     return (json.decode(jsonData) as List)
-        .map((e) => IdentityCard.fromJson(e));
+        .map((e) => IdentityCard.fromJson(e)).toList();
   }
 
   Future insertChat(Chat data) async {

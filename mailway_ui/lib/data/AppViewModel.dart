@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:mailwayui/data/database.dart';
+import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/ContactAndKeyPair.dart';
+import 'package:mailwayui/data/entity/ContactAndKeyPairWithContactChannels.dart';
+import 'package:mailwayui/data/entity/ContactChannel.dart';
+import 'package:mailwayui/data/entity/ContactWithChannels.dart';
+import 'package:mailwayui/data/entity/Keypair.dart';
+import 'package:mailwayui/ntge/NtgeUtils.dart';
+import 'package:mailwayui/scene/ModifyContact.dart';
 import 'package:uuid/uuid.dart';
 
 class AppData {
-  List<ContactAndKeyPair> myKeys;
+  List<ContactAndKeyPairWithContactChannels> myKeys;
 
   AppData({
     this.myKeys,
   });
+
+  static AppData of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<AppDataState>().data;
 }
 
 class AppDataState extends InheritedWidget {
@@ -21,9 +31,6 @@ class AppDataState extends InheritedWidget {
 
   @override
   bool updateShouldNotify(AppDataState oldWidget) => true;
-
-  static AppData of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<AppDataState>().data;
 }
 
 class AppViewModel {
@@ -49,17 +56,80 @@ class AppViewModel {
     commitData(_data);
   }
 
-  Future createContactAndKeyPair(ContactAndKeyPair data) async {
-    if (data.contact.id.isEmpty) {
-      data.contact.id = Uuid().v4().toString();
+  Future createContact(
+    Contact contact,
+    List<ContactChannel> channels,
+    Keypair keypair,
+  ) async {
+    if (contact.id.isEmpty) {
+      contact.id = Uuid().v4().toString();
     }
-    if (data.keypair.contactId != data.contact.id) {
-      data.keypair.contactId = data.contact.id;
+    if (keypair.contactId != contact.id) {
+      keypair.contactId = contact.id;
     }
-    await _database.insertContact(data.contact);
-    await _database.insertKeypair(data.keypair);
+    if (keypair.id.isEmpty) {
+      keypair.id = Uuid().v4().toString();
+    }
+    channels.forEach((channel) {
+      if (channel.contactId != contact.id) {
+        channel.contactId = contact.id;
+      }
+      if (channel.id.isEmpty) {
+        channel.id = Uuid().v4().toString();
+      }
+    });
+    await _database.insertContact(contact);
+    await _database.insertKeypair(keypair);
+    for (final channel in channels) {
+      await _database.insertContactChannel(channel);
+    }
     _data.myKeys = await _database.getContactsWithPrivateKey();
     commitData(_data);
+  }
+
+  Future generateNewIdentity(
+    String name,
+    List<ContactAdditionData> additionData,
+  ) async {
+    final contactId = Uuid().v4().toString();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final contact = Contact(
+      id: contactId,
+      name: name,
+      created_at: timestamp,
+      updated_at: timestamp,
+    );
+    final ed25519Keypair = await NtgeUtils().generateKeypair();
+    final keypair = Keypair(
+      id: Uuid().v4().toString(),
+      created_at: timestamp,
+      updated_at: timestamp,
+      contactId: contactId,
+      key_id: ed25519Keypair.keyId,
+      public_key: ed25519Keypair.publicKey,
+      private_key: ed25519Keypair.privateKey,
+    );
+    final channels = additionData.map(
+      (e) => ContactChannel(
+        id: Uuid().v4().toString(),
+        name: e.type,
+        value: e.value,
+        created_at: timestamp,
+        updated_at: timestamp,
+      ),
+    ).toList();
+    await createContact(contact, channels, keypair);
+  }
+
+  Future updateContact(
+    Contact contact,
+    List<ContactChannel> channels,
+    String name,
+    List<ContactAdditionData> additionData,
+  ) async {}
+
+  Future removeContact(Contact contact) async {
+
   }
 }
 
@@ -86,6 +156,7 @@ class _AppStateManagerState extends State<AppStateManager> {
   @override
   void initState() {
     super.initState();
+    data = AppData(myKeys: []);
     state.initialization();
   }
 

@@ -1,30 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:mailwayui/data/AppViewModel.dart';
+import 'package:mailwayui/data/entity/Contact.dart';
+import 'package:mailwayui/data/entity/ContactChannel.dart';
+import 'package:mailwayui/data/entity/Keypair.dart';
 import 'package:mailwayui/widget/ColoredTextIcon.dart';
 
-class ContactAditionData {
+class ContactAdditionData {
   final String type;
   final Key key;
   String value;
 
-  ContactAditionData({
+  ContactAdditionData({
     this.type,
     this.key,
+    this.value,
   });
 }
 
-class AddContactScene extends StatefulWidget {
+class ModifyContactScene extends StatefulWidget {
+  final Keypair keypair;
+  final Contact contact;
+  final List<ContactChannel> channels;
+
+  const ModifyContactScene({Key key, this.keypair, this.contact, this.channels})
+      : super(key: key);
+
   @override
-  _AddContactSceneState createState() => _AddContactSceneState();
+  _ModifyContactSceneState createState() => _ModifyContactSceneState();
 }
 
-class _AddContactSceneState extends State<AddContactScene> {
-  List<ContactAditionData> additionData = List();
+class _ModifyContactSceneState extends State<ModifyContactScene> {
+  final scaffoldKey = GlobalKey();
+  List<ContactAdditionData> additionData = List();
   String name = "";
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.channels != null) {
+      additionData = widget.channels
+          .map(
+            (e) => ContactAdditionData(
+              type: e.name,
+              key: UniqueKey(),
+              value: e.value,
+            ),
+          )
+          .toList();
+    }
+    if (widget.contact?.name != null) {
+      name = widget.contact.name;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final query = MediaQuery.of(context);
+    final viewModel = AppViewModel.of(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -34,12 +67,25 @@ class _AddContactSceneState extends State<AddContactScene> {
         elevation: 0,
         actions: [
           FlatButton(
-            onPressed: () {},
+            onPressed: () async {
+              if (widget.keypair == null) {
+                await viewModel.generateNewIdentity(name, additionData);
+              } else {
+                await viewModel.updateContact(
+                  widget.contact,
+                  widget.channels,
+                  name,
+                  additionData,
+                );
+              }
+              Navigator.of(context).pop();
+            },
             child: ColoredTextIcon(
               color: Theme.of(context).primaryColor,
               child: Row(
                 children: [
                   Text("Save"),
+                  SizedBox(width: 8),
                   Icon(Icons.save),
                 ],
               ),
@@ -96,7 +142,8 @@ class _AddContactSceneState extends State<AddContactScene> {
                 ],
               ),
               ListTile(
-                title: TextField(
+                title: TextFormField(
+                  initialValue: name,
                   decoration: InputDecoration(labelText: "Name"),
                   onChanged: (value) {
                     setState(() {
@@ -105,17 +152,40 @@ class _AddContactSceneState extends State<AddContactScene> {
                   },
                 ),
               ),
-              ListTile(
-                title: TextField(
-                  controller: TextEditingController(text: "dsadsdsads"),
-                  readOnly: true,
-                  decoration: InputDecoration(labelText: "Public key"),
-                ),
-                trailing: IconButton(
-                  icon: Icon(Icons.content_copy),
-                  onPressed: () {},
-                ),
-              ),
+              widget.keypair?.private_key == null
+                  ? null
+                  : ListTile(
+                      title: TextField(
+                        controller: TextEditingController(
+                            text: widget.keypair.private_key),
+                        readOnly: true,
+                        decoration: InputDecoration(labelText: "Private key"),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.content_copy),
+                        onPressed: () {
+                          Clipboard.setData(
+                              ClipboardData(text: widget.keypair.private_key));
+                        },
+                      ),
+                    ),
+              widget.keypair?.public_key == null
+                  ? null
+                  : ListTile(
+                      title: TextField(
+                        controller: TextEditingController(
+                            text: widget.keypair.public_key),
+                        readOnly: true,
+                        decoration: InputDecoration(labelText: "Public key"),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.content_copy),
+                        onPressed: () {
+                          Clipboard.setData(
+                              ClipboardData(text: widget.keypair.public_key));
+                        },
+                      ),
+                    ),
               ListTile(
                 title: Text("Contacts"),
               ),
@@ -129,7 +199,18 @@ class _AddContactSceneState extends State<AddContactScene> {
                   "telegram", "Input telegram user name"),
               ...buildContactInput(context, Icon(Icons.email), "Add Discord",
                   "discord", "Input discord user name"),
-            ],
+              widget.keypair == null
+                  ? null
+                  : ListTile(
+                      title: RaisedButton(
+                        onPressed: () async {
+                          await viewModel.removeContact(widget.contact);
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("Remove identity"),
+                      ),
+                    ),
+            ].where((element) => element != null).toList(),
           ),
         ),
       ),
@@ -148,9 +229,13 @@ class _AddContactSceneState extends State<AddContactScene> {
         leading: icon,
         title: Text(title),
         onTap: () {
-          setState(() {
-            additionData.add(ContactAditionData(type: type, key: UniqueKey()));
-          });
+          if (!additionData.any(
+              (element) => element.type == type && element.value.isEmpty)) {
+            setState(() {
+              additionData
+                  .add(ContactAdditionData(type: type, key: UniqueKey()));
+            });
+          }
         },
       ),
       ...additionData
@@ -162,7 +247,8 @@ class _AddContactSceneState extends State<AddContactScene> {
                   ? null
                   : ListTile(
                       key: value.key,
-                      title: TextField(
+                      title: TextFormField(
+                        initialValue: value.value,
                         decoration: InputDecoration(hintText: hint),
                         onChanged: (it) {
                           setState(() {
@@ -171,7 +257,7 @@ class _AddContactSceneState extends State<AddContactScene> {
                         },
                       ),
                       trailing: IconButton(
-                        icon: Icon(Icons.remove),
+                        icon: Icon(Icons.close),
                         onPressed: () {
                           setState(() {
                             additionData.removeAt(key);

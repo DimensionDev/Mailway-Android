@@ -19,3 +19,4 @@ class ContactAndKeyPair {
 
   Map<String, dynamic> toJson() => _$ContactAndKeyPairToJson(this);
 }
+

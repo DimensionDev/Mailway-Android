@@ -12,6 +12,7 @@ Contact _$ContactFromJson(Map<String, dynamic> json) {
     name: json['name'] as String,
     avatar: json['avatar'] as String,
     note: json['note'] as String,
+    color: json['color'] as String,
     created_at: json['created_at'] as int,
     updated_at: json['updated_at'] as int,
     i18nNames: (json['i18nNames'] as Map<String, dynamic>)?.map(
@@ -25,6 +26,7 @@ Map<String, dynamic> _$ContactToJson(Contact instance) => <String, dynamic>{
       'name': instance.name,
       'avatar': instance.avatar,
       'note': instance.note,
+      'color': instance.color,
       'created_at': instance.created_at,
       'updated_at': instance.updated_at,
       'i18nNames': instance.i18nNames,
