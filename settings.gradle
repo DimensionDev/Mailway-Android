@@ -1,5 +1,5 @@
 rootProject.name = "MailWay"
-include ':app', ':mailwaycore', ':PinyinIME'
+include ':app', ':mailwaycore', ':PinyinIME' , ':ntge:NtgeCore-Android:ntge'
 setBinding(new Binding([gradle: this]))
 evaluate(new File(
   settingsDir,
