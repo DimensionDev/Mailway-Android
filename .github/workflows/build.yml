@@ -20,9 +20,6 @@ jobs:
           channel: 'stable'
       - name: add rust target
         run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
-      - name: build ntge
-        working-directory: ./ntge/NtgeCore-Android
-        run: sudo ./gradlew build publish
       - name: flutter pub get
         working-directory: mailway_ui
         run: flutter pub get
