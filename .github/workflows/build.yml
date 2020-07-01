@@ -26,5 +26,5 @@ jobs:
         working-directory: mailway_ui
         run: flutter pub get
       - name: Build with Gradle
-        run: sudo ./gradlew build --info
+        run: sudo ./gradlew build --info --stacktrace
 
