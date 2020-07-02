@@ -12,10 +12,9 @@ import 'package:uuid/uuid.dart';
 
 class AppData {
   List<ContactAndKeyPairWithContactChannels> myKeys;
+  List<Contact> contacts;
 
-  AppData({
-    this.myKeys,
-  });
+  AppData({@required this.myKeys, @required this.contacts});
 
   static AppData of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<AppDataState>().data;
@@ -53,6 +52,7 @@ class AppViewModel {
 
   Future initialization() async {
     _data.myKeys = await _database.getContactsWithPrivateKey();
+    _data.contacts = _data.myKeys.map((e) => e.contact).toList();
     commitData(_data);
   }
 
@@ -89,12 +89,14 @@ class AppViewModel {
 
   Future generateNewIdentity(
     String name,
+    String color,
     List<ContactAdditionData> additionData,
   ) async {
     final contactId = Uuid().v4().toString();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final contact = Contact(
       id: contactId,
+      color: color,
       name: name,
       created_at: timestamp,
       updated_at: timestamp,
@@ -109,15 +111,17 @@ class AppViewModel {
       public_key: ed25519Keypair.publicKey,
       private_key: ed25519Keypair.privateKey,
     );
-    final channels = additionData.map(
-      (e) => ContactChannel(
-        id: Uuid().v4().toString(),
-        name: e.type,
-        value: e.value,
-        created_at: timestamp,
-        updated_at: timestamp,
-      ),
-    ).toList();
+    final channels = additionData
+        .map(
+          (e) => ContactChannel(
+            id: Uuid().v4().toString(),
+            name: e.type,
+            value: e.value,
+            created_at: timestamp,
+            updated_at: timestamp,
+          ),
+        )
+        .toList();
     await createContact(contact, channels, keypair);
   }
 
@@ -126,11 +130,36 @@ class AppViewModel {
     List<ContactChannel> channels,
     String name,
     List<ContactAdditionData> additionData,
-  ) async {}
+  ) async {
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
 
-  Future removeContact(Contact contact) async {
+    for (final channel in channels) {
+      await _database.deleteContactChannel(channel);
+    }
 
+    final newChannels = additionData
+        .map(
+          (e) => ContactChannel(
+            id: Uuid().v4().toString(),
+            name: e.type,
+            value: e.value,
+            created_at: timestamp,
+            updated_at: timestamp,
+            contactId: contact.id,
+          ),
+        )
+        .toList();
+    for (final channel in newChannels) {
+      await _database.insertContactChannel(channel);
+    }
+
+    await _database.updateContact(contact);
+
+    _data.myKeys = await _database.getContactsWithPrivateKey();
+    commitData(_data);
   }
+
+  Future removeContact(Contact contact) async {}
 }
 
 class AppStateManager extends StatefulWidget {
@@ -156,7 +185,10 @@ class _AppStateManagerState extends State<AppStateManager> {
   @override
   void initState() {
     super.initState();
-    data = AppData(myKeys: []);
+    data = AppData(
+      myKeys: [],
+      contacts: [],
+    );
     state.initialization();
   }
 

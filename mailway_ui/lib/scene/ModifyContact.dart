@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/ContactChannel.dart';
 import 'package:mailwayui/data/entity/Keypair.dart';
 import 'package:mailwayui/widget/ColoredTextIcon.dart';
+import 'package:mailwayui/extensions/color.dart';
 
 class ContactAdditionData {
   final String type;
@@ -34,6 +36,7 @@ class _ModifyContactSceneState extends State<ModifyContactScene> {
   final scaffoldKey = GlobalKey();
   List<ContactAdditionData> additionData = List();
   String name = "";
+  Color color;
 
   @override
   void initState() {
@@ -52,6 +55,11 @@ class _ModifyContactSceneState extends State<ModifyContactScene> {
     if (widget.contact?.name != null) {
       name = widget.contact.name;
     }
+    if (widget.contact?.color != null) {
+      color = widget.contact.color.toColor();
+    } else {
+      color = Colors.blue;
+    }
   }
 
   @override
@@ -69,8 +77,9 @@ class _ModifyContactSceneState extends State<ModifyContactScene> {
           FlatButton(
             onPressed: () async {
               if (widget.keypair == null) {
-                await viewModel.generateNewIdentity(name, additionData);
+                await viewModel.generateNewIdentity(name, color.toHex(), additionData);
               } else {
+                widget.contact.color = color.toHex();
                 await viewModel.updateContact(
                   widget.contact,
                   widget.channels,
@@ -145,11 +154,30 @@ class _ModifyContactSceneState extends State<ModifyContactScene> {
                 title: TextFormField(
                   initialValue: name,
                   decoration: InputDecoration(labelText: "Name"),
+                  autofocus: true,
                   onChanged: (value) {
                     setState(() {
                       name = value;
                     });
                   },
+                ),
+              ),
+              ListTile(
+                onTap: () {
+                  showColorPicker(context);
+                },
+                title: Text("Set ID color"),
+                trailing: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               widget.keypair?.private_key == null
@@ -271,5 +299,33 @@ class _ModifyContactSceneState extends State<ModifyContactScene> {
           .where((element) => element != null)
           .toList(),
     ];
+  }
+
+  void showColorPicker(BuildContext context) {
+    showDialog(
+      context: context,
+      child: AlertDialog(
+        title: const Text('Pick a color!'),
+        content: SingleChildScrollView(
+          child: BlockPicker(
+            pickerColor: Colors.cyan,
+            onColorChanged: (_color) {
+              setState(() {
+                color = _color;
+              });
+            },
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: const Text('Done'),
+            onPressed: () {
+//              setState(() => currentColor = pickerColor);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

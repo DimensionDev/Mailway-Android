@@ -18,7 +18,7 @@ description: Mailway UI
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -30,6 +30,7 @@ dependencies:
   flutter_speed_dial: ^1.2.5
   json_annotation: ^3.0.0
   uuid: ^2.0.4
+  flutter_colorpicker: ^0.3.4
 
 
 dev_dependencies:

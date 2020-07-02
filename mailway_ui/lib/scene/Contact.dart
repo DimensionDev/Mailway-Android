@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mailwayui/data/AppViewModel.dart';
 import 'package:mailwayui/scene/ModifyContact.dart';
 import 'package:mailwayui/widget/AppDrawer.dart';
 
@@ -11,6 +12,7 @@ class ContactScene extends StatefulWidget {
 class _ContactSceneState extends State<ContactScene> {
   @override
   Widget build(BuildContext context) {
+    final data = AppData.of(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -45,6 +47,23 @@ class _ContactSceneState extends State<ContactScene> {
           );
         },
         child: Icon(Icons.add),
+      ),
+      body: ListView(
+        physics: BouncingScrollPhysics(),
+        children: data.contacts
+            .map(
+              (e) => ListTile(
+                onTap: () {
+
+                },
+                leading: Icon(
+                  Icons.account_circle,
+                  size: 40,
+                ),
+                title: Text(e.name),
+              ),
+            )
+            .toList(),
       ),
     );
   }

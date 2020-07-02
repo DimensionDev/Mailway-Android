@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:mailwayui/scene/RecipientSelect.dart';
 import 'package:mailwayui/widget/AppDrawer.dart';
 
 class InboxScene extends StatelessWidget {
@@ -45,7 +47,13 @@ class InboxScene extends StatelessWidget {
             child: Icon(Icons.send),
             backgroundColor: Colors.green,
             label: 'Write',
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context, rootNavigator: true)
+                  .push(CupertinoPageRoute(
+                builder: (context) => RecipientSelectScene(),
+                fullscreenDialog: true
+              ));
+            },
           ),
         ],
       ),
