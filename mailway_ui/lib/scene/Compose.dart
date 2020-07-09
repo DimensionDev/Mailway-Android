@@ -17,6 +17,11 @@ class _ComposeSceneState extends State<ComposeScene> {
   String text;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    selectedSender = AppData.of(context).myKeys.first;
+  }
+  @override
   Widget build(BuildContext context) {
     final data = AppData.of(context);
     final viewModel = AppViewModel.of(context);
@@ -38,7 +43,7 @@ class _ComposeSceneState extends State<ComposeScene> {
         centerTitle: true,
         title: DropdownButton<ContactAndKeyPairWithContactChannels>(
           isExpanded: true,
-          value: selectedSender ?? data.myKeys.first,
+          value: selectedSender,
           underline: Container(),
           items: data.myKeys
               .map(

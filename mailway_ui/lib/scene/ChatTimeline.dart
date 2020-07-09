@@ -25,7 +25,12 @@ class ChatTimelineScene extends StatelessWidget {
         onPressed: () {},
         child: Icon(Icons.reply_all),
       ),
-      body: ListView.builder(
+      body: ListView.separated(
+        separatorBuilder: (context, index) => Divider(
+          indent: 16,
+          endIndent: 16,
+          color: Theme.of(context).dividerColor,
+        ),
         physics: BouncingScrollPhysics(),
         itemCount: data.messages.length,
         itemBuilder: (context, index) {
@@ -67,6 +72,7 @@ class ChatTimelineScene extends StatelessWidget {
                   ],
                 ),
                 Text(item.payload),
+                SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
