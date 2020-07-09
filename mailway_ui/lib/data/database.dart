@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:mailwayui/data/entity/Chat.dart';
+import 'package:mailwayui/data/entity/ChatAndChatMemberNameStubCrossRef.dart';
 import 'package:mailwayui/data/entity/ChatMemberNameStub.dart';
 import 'package:mailwayui/data/entity/ChatMemberNameStubWithChats.dart';
 import 'package:mailwayui/data/entity/ChatMessage.dart';
 import 'package:mailwayui/data/entity/ChatWithChatMemberNameStubs.dart';
 import 'package:mailwayui/data/entity/ChatWithChatMessages.dart';
+import 'package:mailwayui/data/entity/ChatWithChatMessagesWithChatMemberNameStubs.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/ContactAndKeyPair.dart';
 import 'package:mailwayui/data/entity/ContactAndKeyPairWithContactChannels.dart';
@@ -19,9 +21,34 @@ class AppDatabase {
   final databaseChannel =
       const MethodChannel('com.dimension.mailwaycore/database');
 
+  Future<List<ContactAndKeyPair>> getContactsAndKeyPairsIn(List<String> ids) async {
+    final jsonData =
+        await databaseChannel.invokeMethod("getContactsAndKeyPairsIn", {"ids": jsonEncode(ids)});
+    return (json.decode(jsonData) as List).map((e) => ContactAndKeyPair.fromJson(e)).toList();
+  }
+
+  Future<List<ChatMemberNameStub>> getChatMemberNameStubsIn(List<String> ids) async {
+    final jsonData =
+    await databaseChannel.invokeMethod("getChatMemberNameStubsIn", {"ids": jsonEncode(ids)});
+    return (json.decode(jsonData) as List).map((e) => ChatMemberNameStub.fromJson(e)).toList();
+  }
+
+  Future<ChatWithChatMemberNameStubs> getChatsWithChatMemberNameStubsIn(String senderPublicKey, List<String> memberKeyId) async {
+    final jsonData = await databaseChannel.invokeMethod("getChatsWithChatMemberNameStubsIn", {"sender": senderPublicKey, "ids": jsonEncode(memberKeyId)});
+    if (jsonData == null) {
+      return null;
+    }
+    return ChatWithChatMemberNameStubs.fromJson(json.decode(jsonData));
+  }
+
   Future<List<ContactAndKeyPairWithContactChannels>> getContactsWithPrivateKey() async {
     final jsonData = await databaseChannel.invokeMethod("getContactsWithPrivateKey");
     return (json.decode(jsonData) as List).map((e) => ContactAndKeyPairWithContactChannels.fromJson(e)).toList();
+  }
+
+  Future<ContactAndKeyPairWithContactChannels> queryContact(String contactId) async {
+    final jsonData = await databaseChannel.invokeMethod("queryContact", {"contactId": contactId});
+    return ContactAndKeyPairWithContactChannels.fromJson(json.decode(jsonData));
   }
 
   Future<List<Chat>> getChats() async {
@@ -43,6 +70,13 @@ class AppDatabase {
         .invokeMethod("query", {"table": "ChatWithChatMessages"});
     return (json.decode(jsonData) as List)
         .map((e) => ChatWithChatMessages.fromJson(e)).toList();
+  }
+
+  Future<List<ChatWithChatMessagesWithChatMemberNameStubs>> getChatWithChatMessagesWithChatMemberNameStubs() async {
+    final jsonData = await databaseChannel
+        .invokeMethod("query", {"table": "ChatWithChatMessagesWithChatMemberNameStubs"});
+    return (json.decode(jsonData) as List)
+        .map((e) => ChatWithChatMessagesWithChatMemberNameStubs.fromJson(e)).toList();
   }
 
   Future<List<ChatMemberNameStubWithChats>>
@@ -78,6 +112,11 @@ class AppDatabase {
         .invokeMethod("query", {"table": "IdentityCard"});
     return (json.decode(jsonData) as List)
         .map((e) => IdentityCard.fromJson(e)).toList();
+  }
+
+  Future insertChatAndChatMemberNameStubCrossRef(ChatAndChatMemberNameStubCrossRef data) async {
+    await databaseChannel.invokeMethod(
+        "insert", {"table": "ChatAndChatMemberNameStubCrossRef", "data": json.encode(data.toJson())});
   }
 
   Future insertChat(Chat data) async {

@@ -19,6 +19,12 @@ interface ChatDao {
     @Query("SELECT * FROM chatmembernamestub")
     suspend fun getChatMemberNameStubWithChats(): List<ChatMemberNameStubWithChats>
 
+    @Query("SELECT * FROM chatmembernamestub")
+    suspend fun getChatMemberNameStubs(): List<ChatMemberNameStub>
+
+    @Query("SELECT * FROM chatmembernamestub WHERE key_id IN (:ids)")
+    suspend fun getChatMemberNameStubsIn(ids: List<String>): List<ChatMemberNameStub>
+
     @Query("SELECT * FROM chat")
     fun getChatsSync(): LiveData<List<Chat>>
     @Transaction
@@ -51,4 +57,18 @@ interface ChatDao {
     suspend fun insert(vararg ChatMessage: ChatMessage)
     @Delete
     suspend fun delete(ChatMessage: ChatMessage)
+
+    @Insert
+    suspend fun insert(vararg chatAndChatMemberNameStubCrossRef: ChatAndChatMemberNameStubCrossRef)
+
+    @Transaction
+    @Query("""SELECT * FROM chat c 
+        inner join chatandchatmembernamestubcrossref cref on cref.chatId = c.chatId 
+        inner join chatmembernamestub cm on cm.chatMemberNameStubId = cref.chatMemberNameStubId 
+        where c.identity_public_key = :senderId and cm.key_id in (:ids) group by c.chatId having count(*)=:length limit 1""")
+    suspend fun getChatsWithChatMemberNameStubsIn(senderId: String, ids: List<String>, length: Int): ChatWithChatMemberNameStubs?
+
+    @Transaction
+    @Query("SELECT * FROM chat")
+    suspend fun getChatWithChatMessagesWithChatMemberNameStubs(): List<ChatWithChatMessagesWithChatMemberNameStubs>
 }

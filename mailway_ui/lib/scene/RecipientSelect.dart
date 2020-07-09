@@ -23,7 +23,6 @@ class _RecipientSelectSceneState extends State<RecipientSelectScene> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = AppViewModel.of(context);
     final data = AppData.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -42,7 +41,11 @@ class _RecipientSelectSceneState extends State<RecipientSelectScene> {
         actions: [
           FlatButton(
             onPressed: () {
-              Navigator.of(context).pushReplacement(CupertinoPageRoute(builder: (context) => ComposeScene(), fullscreenDialog: true));
+              Navigator.of(context).pushReplacement(CupertinoPageRoute(
+                  builder: (context) => ComposeScene(
+                        selectedContact: selectedContact,
+                      ),
+                  fullscreenDialog: true));
             },
             child: ColoredTextIcon(
               color: Theme.of(context).primaryColor,

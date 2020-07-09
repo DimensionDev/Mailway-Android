@@ -13,6 +13,6 @@ data class ChatMemberNameStub(
     var name: String,
     var created_at: Long,
     var updated_at: Long,
-    var i18nNames: Map<String, String>
+    var i18nNames: Map<String, String>?
 )
 

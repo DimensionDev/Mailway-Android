@@ -8,7 +8,7 @@ import com.dimension.mailwaycore.data.dao.ContactDao
 import com.dimension.mailwaycore.data.entity.*
 
 @Database(
-    entities = [Contact::class, ContactChannel::class, Keypair::class, Chat::class, ChatMemberNameStub::class, ChatMessage::class, ChatAndChatMemberNameStubCrossRef::class, IdentityCard::class],
+    entities = [Contact::class, ContactChannel::class, Keypair::class, Chat::class, ChatMemberNameStub::class, ChatMessage::class, ChatAndChatMemberNameStubCrossRef::class, IdentityCard::class, QuoteMessage::class],
     version = 1
 )
 @TypeConverters(Converters::class)

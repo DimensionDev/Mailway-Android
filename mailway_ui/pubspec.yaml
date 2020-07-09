@@ -31,7 +31,8 @@ dependencies:
   json_annotation: ^3.0.0
   uuid: ^2.0.4
   flutter_colorpicker: ^0.3.4
-
+  carousel_slider: ^2.2.1
+  collection: any
 
 dev_dependencies:
   flutter_test:

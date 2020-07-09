@@ -1,11 +1,20 @@
+import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mailwayui/data/database.dart';
+import 'package:mailwayui/data/entity/Chat.dart';
+import 'package:mailwayui/data/entity/ChatAndChatMemberNameStubCrossRef.dart';
+import 'package:mailwayui/data/entity/ChatMemberNameStub.dart';
+import 'package:mailwayui/data/entity/ChatMessage.dart';
+import 'package:mailwayui/data/entity/ChatWithChatMessages.dart';
+import 'package:mailwayui/data/entity/ChatWithChatMessagesWithChatMemberNameStubs.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/ContactAndKeyPair.dart';
 import 'package:mailwayui/data/entity/ContactAndKeyPairWithContactChannels.dart';
 import 'package:mailwayui/data/entity/ContactChannel.dart';
 import 'package:mailwayui/data/entity/ContactWithChannels.dart';
 import 'package:mailwayui/data/entity/Keypair.dart';
+import 'package:mailwayui/data/entity/PayloadKind.dart';
 import 'package:mailwayui/ntge/NtgeUtils.dart';
 import 'package:mailwayui/scene/ModifyContact.dart';
 import 'package:uuid/uuid.dart';
@@ -13,8 +22,13 @@ import 'package:uuid/uuid.dart';
 class AppData {
   List<ContactAndKeyPairWithContactChannels> myKeys;
   List<Contact> contacts;
+  List<ChatWithChatMessagesWithChatMemberNameStubs> chats;
 
-  AppData({@required this.myKeys, @required this.contacts});
+  AppData({
+    @required this.myKeys,
+    @required this.contacts,
+    @required this.chats,
+  });
 
   static AppData of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<AppDataState>().data;
@@ -53,6 +67,8 @@ class AppViewModel {
   Future initialization() async {
     _data.myKeys = await _database.getContactsWithPrivateKey();
     _data.contacts = _data.myKeys.map((e) => e.contact).toList();
+    _data.chats =
+        await _database.getChatWithChatMessagesWithChatMemberNameStubs();
     commitData(_data);
   }
 
@@ -112,6 +128,7 @@ class AppViewModel {
       private_key: ed25519Keypair.privateKey,
     );
     final channels = additionData
+        .where((element) => element.value != null && element.value.isNotEmpty)
         .map(
           (e) => ContactChannel(
             id: Uuid().v4().toString(),
@@ -138,6 +155,7 @@ class AppViewModel {
     }
 
     final newChannels = additionData
+        .where((element) => element.value != null && element.value.isNotEmpty)
         .map(
           (e) => ContactChannel(
             id: Uuid().v4().toString(),
@@ -160,6 +178,100 @@ class AppViewModel {
   }
 
   Future removeContact(Contact contact) async {}
+
+  Future<ContactAndKeyPairWithContactChannels> getContactInfo(
+    Contact item,
+  ) async {
+    return await _database.queryContact(item.id);
+  }
+
+  Future newChat(
+    ContactAndKeyPairWithContactChannels sender,
+    String text,
+    List<Contact> selectedContact,
+  ) async {
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final selectedContactsWithKeys = await _database
+        .getContactsAndKeyPairsIn(selectedContact.map((e) => e.id).toList());
+    final messageId = Uuid().v4().toString();
+    final armorMessage = await NtgeUtils().encryptMessageWithExtra(
+      sender.keypair,
+      text,
+      selectedContactsWithKeys.map((e) => e.keypair).toList(),
+      messageId,
+    );
+    final chatMembers = await _database.getChatMemberNameStubsIn(
+        selectedContactsWithKeys.map((e) => e.keypair.key_id).toList());
+    final newMembers = selectedContactsWithKeys
+        .where((element) =>
+            !chatMembers.any((m) => m.key_id == element.keypair.key_id))
+        .map((e) => ChatMemberNameStub(
+              chatMemberNameStubId: Uuid().v4().toString(),
+              key_id: e.keypair.key_id,
+              public_key: e.keypair.public_key,
+              name: e.contact.name,
+              updated_at: timestamp,
+              created_at: timestamp,
+              i18nNames: e.contact.i18nNames,
+            ))
+        .toList();
+    for (var value in newMembers) {
+      await _database.insertChatMemberNameStub(value);
+    }
+    final totalChatMembers = chatMembers + newMembers;
+    final allChatWithStubs = await _database.getChatsWithChatMemberNameStubs();
+    Function deepEq = const DeepCollectionEquality.unordered().equals;
+    final currentChatWithStubs = allChatWithStubs.firstWhere(
+      (element) =>
+          element.chat.identity_public_key == sender.keypair.public_key &&
+          deepEq(
+            element.chatMemberNameStubs.map((e) => e.key_id).toList(),
+            selectedContactsWithKeys.map((e) => e.keypair.key_id).toList(),
+          ),
+      orElse: () => null,
+    );
+    var currentChat = currentChatWithStubs?.chat;
+    if (currentChat == null) {
+      currentChat = Chat(
+        chatId: Uuid().v4().toString(),
+        title: "",
+        identity_public_key: sender.keypair.public_key,
+        created_at: timestamp,
+        updated_at: timestamp,
+      );
+      await _database.insertChat(currentChat);
+      final crossref = totalChatMembers.map((e) =>
+          ChatAndChatMemberNameStubCrossRef(
+              chatId: currentChat.chatId,
+              chatMemberNameStubId: e.chatMemberNameStubId));
+      for (var value in crossref) {
+        await _database.insertChatAndChatMemberNameStubCrossRef(value);
+      }
+    }
+    final chatMessage = ChatMessage(
+      id: Uuid().v4().toString(),
+      created_at: timestamp,
+      updated_at: timestamp,
+      message_timestamp: timestamp,
+      compose_timestamp: timestamp,
+      receive_timestamp: timestamp,
+      share_timestamp: null,
+      sender_public_key: sender.keypair.public_key,
+      recipient_public_keys:
+          selectedContactsWithKeys.map((e) => e.keypair.public_key).toList(),
+      payload_kind: PayloadKind.plaintext,
+      payload: text,
+      version: 1,
+      chatId: currentChat.chatId,
+      quote_message_id: null,
+      armored_message: armorMessage,
+      message_id: messageId,
+    );
+    await _database.insertChatMessage(chatMessage);
+    _data.chats =
+        await _database.getChatWithChatMessagesWithChatMemberNameStubs();
+    commitData(_data);
+  }
 }
 
 class AppStateManager extends StatefulWidget {
@@ -188,6 +300,7 @@ class _AppStateManagerState extends State<AppStateManager> {
     data = AppData(
       myKeys: [],
       contacts: [],
+      chats: [],
     );
     state.initialization();
   }

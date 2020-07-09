@@ -1,53 +1,41 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'ChatMessage.dart';
+part of 'QuoteMessage.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) {
-  return ChatMessage(
+QuoteMessage _$QuoteMessageFromJson(Map<String, dynamic> json) {
+  return QuoteMessage(
     id: json['id'] as String,
     created_at: json['created_at'] as int,
     updated_at: json['updated_at'] as int,
-    message_timestamp: json['message_timestamp'] as int,
-    compose_timestamp: json['compose_timestamp'] as int,
-    receive_timestamp: json['receive_timestamp'] as int,
-    share_timestamp: json['share_timestamp'] as int,
-    sender_public_key: json['sender_public_key'] as String,
-    recipient_public_keys: (json['recipient_public_keys'] as List)
-        ?.map((e) => e as String)
-        ?.toList(),
-    armored_message: json['armored_message'] as String,
-    payload: json['payload'] as String,
-    payload_kind:
-        _$enumDecodeNullable(_$PayloadKindEnumMap, json['payload_kind']),
-    version: json['version'] as int,
-    chatId: json['chatId'] as String,
-    quote_message_id: json['quote_message_id'] as String,
+    chatMessageId: json['chatMessageId'] as String,
     message_id: json['message_id'] as String,
+    digest: json['digest'] as String,
+    digest_kind:
+        _$enumDecodeNullable(_$PayloadKindEnumMap, json['digest_kind']),
+    digest_description: json['digest_description'] as String,
+    sender_name: json['sender_name'] as String,
+    sender_public_key: json['sender_public_key'] as String,
+    chat_message_id: json['chat_message_id'] as String,
   );
 }
 
-Map<String, dynamic> _$ChatMessageToJson(ChatMessage instance) =>
+Map<String, dynamic> _$QuoteMessageToJson(QuoteMessage instance) =>
     <String, dynamic>{
       'id': instance.id,
       'created_at': instance.created_at,
       'updated_at': instance.updated_at,
-      'message_timestamp': instance.message_timestamp,
-      'compose_timestamp': instance.compose_timestamp,
-      'receive_timestamp': instance.receive_timestamp,
-      'share_timestamp': instance.share_timestamp,
-      'sender_public_key': instance.sender_public_key,
-      'recipient_public_keys': instance.recipient_public_keys,
-      'armored_message': instance.armored_message,
-      'payload': instance.payload,
-      'payload_kind': _$PayloadKindEnumMap[instance.payload_kind],
-      'version': instance.version,
-      'chatId': instance.chatId,
-      'quote_message_id': instance.quote_message_id,
+      'chatMessageId': instance.chatMessageId,
       'message_id': instance.message_id,
+      'digest': instance.digest,
+      'digest_kind': _$PayloadKindEnumMap[instance.digest_kind],
+      'digest_description': instance.digest_description,
+      'sender_name': instance.sender_name,
+      'sender_public_key': instance.sender_public_key,
+      'chat_message_id': instance.chat_message_id,
     };
 
 T _$enumDecode<T>(

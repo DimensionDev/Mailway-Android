@@ -1,8 +1,15 @@
+import 'dart:io';
+
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
+import 'package:mailwayui/data/entity/Contact.dart';
+import 'package:mailwayui/data/entity/Keypair.dart';
+import 'package:mailwayui/scene/ContactInfo.dart';
 import 'package:mailwayui/scene/ModifyContact.dart';
-import 'package:mailwayui/widget/AppDrawer.dart';
+import 'package:mailwayui/extensions/color.dart';
+import 'package:mailwayui/widget/ContactAvatar.dart';
 
 class ContactScene extends StatefulWidget {
   @override
@@ -13,6 +20,7 @@ class _ContactSceneState extends State<ContactScene> {
   @override
   Widget build(BuildContext context) {
     final data = AppData.of(context);
+    final viewModel = AppViewModel.of(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -48,22 +56,114 @@ class _ContactSceneState extends State<ContactScene> {
         },
         child: Icon(Icons.add),
       ),
-      body: ListView(
+      body: CustomScrollView(
         physics: BouncingScrollPhysics(),
-        children: data.contacts
-            .map(
-              (e) => ListTile(
-                onTap: () {
-
-                },
-                leading: Icon(
-                  Icons.account_circle,
-                  size: 40,
-                ),
-                title: Text(e.name),
+        slivers: [
+          SliverToBoxAdapter(
+            child: CarouselSlider.builder(
+              itemCount: data.myKeys.length,
+              options: CarouselOptions(
+                enableInfiniteScroll: false,
+                height: 123,
               ),
-            )
-            .toList(),
+              itemBuilder: (context, index) {
+                final item = data.myKeys[index];
+                return Padding(
+                  padding:
+                      EdgeInsets.only(top: 16, bottom: 32, left: 8, right: 8),
+                  child: Card(
+                    elevation: 16,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: _ContactIdentityItem(
+                      contact: item.contact,
+                      keypair: item.keypair,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                final item = data.contacts[index];
+                return ListTile(
+                  onTap: () async {
+                    final result = await viewModel.getContactInfo(item);
+                    Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute(
+                        builder: (context) => ContactInfoScene(
+                          contact: item,
+                          keypair: result.keypair,
+                          channels: result.channels,
+                        ),
+                      ),
+                    );
+                  },
+                  leading: ContactAvatar(
+                    contact: item,
+                  ),
+                  title: Text(item.name),
+                );
+              },
+              childCount: data.contacts.length,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _ContactIdentityItem extends StatelessWidget {
+  final Contact contact;
+  final Keypair keypair;
+  final Function onTap;
+
+  const _ContactIdentityItem({Key key, this.contact, this.keypair, this.onTap})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        onTap?.call();
+      },
+      child: Padding(
+        padding: EdgeInsets.only(right: 16, top: 16, bottom: 16),
+        child: Row(
+          children: [
+            SizedBox(width: 4),
+            Container(
+              height: 28,
+              width: 4,
+              decoration: BoxDecoration(
+                color: contact.color?.toColor() ?? Colors.grey,
+                borderRadius: BorderRadius.all(Radius.circular(2)),
+              ),
+            ),
+            SizedBox(width: 16.0 - 4 - 4),
+            ContactAvatar(
+              contact: contact,
+            ),
+            SizedBox(width: 8),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  contact.name,
+                  style: Theme.of(context).textTheme.subtitle1,
+                ),
+                Text(
+                  keypair.key_id.substring(keypair.key_id.length - 8),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

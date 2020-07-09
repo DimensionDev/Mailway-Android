@@ -36,7 +36,7 @@ subprojects {
         ext {
             app_id = 'com.dimension.mailway'
             min_version = 21
-            target_version = 29
+            target_version = 30
         }
     }
 }

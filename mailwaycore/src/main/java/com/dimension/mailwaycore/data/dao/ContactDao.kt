@@ -11,6 +11,10 @@ interface ContactDao {
     @Query("SELECT contact.*, keypair.id as keypair_id, keypair.contactId as keypair_contactId from contact join keypair on keypair.contactId = contact.id where keypair.private_key IS NOT NULL")
     suspend fun getContactsWithPrivateKey(): List<ContactAndKeyPairWithContactChannels>
 
+    @Transaction
+    @Query("SELECT * FROM contact where id = :id LIMIT 1")
+    suspend fun queryContact(id: String): ContactAndKeyPairWithContactChannels
+
     @Query("SELECT * FROM contact")
     suspend fun getContacts(): List<Contact>
 
@@ -19,6 +23,9 @@ interface ContactDao {
     @Transaction
     @Query("SELECT * FROM contact")
     suspend fun getContactsAndKeyPairs(): List<ContactAndKeyPair>
+    @Transaction
+    @Query("SELECT * FROM contact WHERE id in (:ids)")
+    suspend fun getContactsAndKeyPairsIn(ids: List<String>): List<ContactAndKeyPair>
     @Transaction
     @Query("SELECT * FROM contact")
     suspend fun getContactsWithChannels(): List<ContactWithChannels>

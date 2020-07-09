@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mailwayui/data/entity/PayloadKind.dart';
 
@@ -19,6 +20,8 @@ class ChatMessage {
   PayloadKind payload_kind;
   int version;
   String chatId;
+  String quote_message_id;
+  String message_id;
 
   ChatMessage({
     this.id,
@@ -35,6 +38,8 @@ class ChatMessage {
     this.payload_kind,
     this.version,
     this.chatId,
+    this.quote_message_id,
+    this.message_id
   });
   
   factory ChatMessage.fromJson(Map<String, dynamic> json) =>

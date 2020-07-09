@@ -1,13 +1,19 @@
 package com.dimension.mailwaycore.data.entity
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.Relation
+import com.fasterxml.jackson.annotation.JsonIgnore
 import kotlinx.serialization.Serializable
 
 @Entity
 @Serializable
 data class ChatMessage(
-    @PrimaryKey var id: String,
+    @PrimaryKey
+    @JsonIgnore
+    var id: String,
+    var message_id: String,
     var created_at: Long,
     var updated_at: Long,
     var message_timestamp: Long,
@@ -20,5 +26,19 @@ data class ChatMessage(
     var payload: String?,
     var payload_kind: PayloadKind,
     var version: Int?,
-    var chatId: String
+    @JsonIgnore
+    var chatId: String,
+    @JsonIgnore
+    var quote_message_id: String?
+)
+
+
+@Serializable
+data class ChatMessageAndQuoteMessage(
+    @Embedded val chatMessage: ChatMessage,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "chat_message_id"
+    )
+    val quoteMessage: QuoteMessage
 )

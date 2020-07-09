@@ -1,12 +1,16 @@
 package com.dimension.mailwaycore.data
 
+import android.util.Log
 import com.dimension.mailwaycore.data.entity.*
 import com.dimension.mailwaycore.utils.JSON
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.serializer
 import org.koin.java.KoinJavaComponent
 
 class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
@@ -26,6 +30,72 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
                 }.let {
                     result.success(it)
                 }
+            }
+            return
+        }
+
+        if (call.method == "queryContact") {
+            val contactId = call.argument<String>("contactId") ?: run {
+                result.error("01", "argument exception", "require contactId")
+                return
+            }
+            scope.launch {
+                database.contactDao().queryContact(contactId).let {
+                    JSON.stringify(ContactAndKeyPairWithContactChannels.serializer(), it)
+                }.let {
+                    result.success(it)
+                }
+            }
+            return
+        }
+
+        if (call.method == "getContactsAndKeyPairsIn") {
+            val contactIds = call.argument<String>("ids")?.let {
+                JSON.parse(String.serializer().list, it)
+            } ?: run {
+                result.error("01", "argument exception", "require contact Ids")
+                return
+            }
+            scope.launch {
+                result.success(database.contactDao().getContactsAndKeyPairsIn(contactIds).let {
+                    JSON.stringify(ContactAndKeyPair.serializer().list, it)
+                })
+            }
+            return
+        }
+        if (call.method == "getChatMemberNameStubsIn") {
+            val keyids = call.argument<String>("ids")?.let {
+                JSON.parse(String.serializer().list, it)
+            } ?: run {
+                result.error("01", "argument exception", "require contactId")
+                return
+            }
+            scope.launch {
+                result.success(database.chatDao().getChatMemberNameStubsIn(keyids).let {
+                    JSON.stringify(ChatMemberNameStub.serializer().list, it)
+                })
+            }
+            return
+        }
+
+        if (call.method == "getChatsWithChatMemberNameStubsIn") {
+            val contactIds = call.argument<String>("ids")?.let {
+                JSON.parse(String.serializer().list, it)
+            } ?: run {
+                result.error("01", "argument exception", "require contact Ids")
+                return
+            }
+            val sender = call.argument<String>("sender") ?: kotlin.run {
+                result.error("01", "argument exception", "require sender")
+                return
+            }
+            scope.launch {
+                val chat = database.chatDao().getChatsWithChatMemberNameStubsIn(senderId = sender, ids = contactIds, length = contactIds.size)
+                Log.i("chat", chat?.let {
+                    JSON.stringify(ChatWithChatMemberNameStubs.serializer(), it) } ?: "null")
+                result.success(chat?.let {
+                    JSON.stringify(ChatWithChatMemberNameStubs.serializer(), it)
+                })
             }
             return
         }
@@ -67,6 +137,9 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
                             .let {
                                 JSON.stringify(IdentityCard.serializer().list, it)
                             }
+                        "ChatWithChatMessagesWithChatMemberNameStubs" -> database.chatDao().getChatWithChatMessagesWithChatMemberNameStubs().let {
+                            JSON.stringify(ChatWithChatMessagesWithChatMemberNameStubs.serializer().list, it)
+                        }
                         else -> {
                             result.error("02", "argument out of range exception", "unknown table name $table")
                             null
@@ -123,6 +196,12 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
                         "IdentityCard" -> {
                             JSON.parse(IdentityCard.serializer(), json).let {
                                 database.contactDao().insert(it)
+                                result.success(true)
+                            }
+                        }
+                        "ChatAndChatMemberNameStubCrossRef" -> {
+                            JSON.parse(ChatAndChatMemberNameStubCrossRef.serializer(), json).let {
+                                database.chatDao().insert(it)
                                 result.success(true)
                             }
                         }
