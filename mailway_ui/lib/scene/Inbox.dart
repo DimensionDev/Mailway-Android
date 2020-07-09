@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
+import 'package:mailwayui/scene/ChatTimeline.dart';
 import 'package:mailwayui/scene/Decrypt.dart';
 import 'package:mailwayui/scene/RecipientSelect.dart';
 import 'package:mailwayui/widget/AppDrawer.dart';
@@ -65,11 +66,17 @@ class InboxScene extends StatelessWidget {
         ],
       ),
       body: ListView.builder(
+        physics: BouncingScrollPhysics(),
         itemCount: data.chats.length,
         itemBuilder: (context, index) {
           final item = data.chats[index];
           return ListTile(
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                  builder: (context) => ChatTimelineScene(
+                        data: item,
+                      )));
+            },
             leading: Icon(Icons.account_circle),
             title: Text(item.chatMemberNameStubs.map((e) => e.name).join(", ")),
             subtitle: Text(item.messages.last?.payload),
