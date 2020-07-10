@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/ContactChannel.dart';
 import 'package:mailwayui/data/entity/Keypair.dart';
@@ -71,14 +72,14 @@ class ContactInfoScene extends StatelessWidget {
                     contact.name,
                     style: Theme.of(context).textTheme.headline6,
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Public Key",
-                    style: Theme.of(context).textTheme.caption,
-                  ),
-                  SizedBox(height: 4),
-                  Text(keypair.key_id.substring(keypair.key_id.length - 8)),
-                  SizedBox(height: 8),
+//                  SizedBox(height: 8),
+//                  Text(
+//                    "Public Key",
+//                    style: Theme.of(context).textTheme.caption,
+//                  ),
+//                  SizedBox(height: 4),
+//                  Text(keypair.key_id.substring(keypair.key_id.length - 8)),
+                  SizedBox(height: 40),
                   RaisedButton(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(999.0),
@@ -92,7 +93,31 @@ class ContactInfoScene extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 32),
+                  ListTile(
+                    onTap: () {},
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Key ID",
+                          style: Theme.of(context).textTheme.caption,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          keypair.key_id,
+                          style: Theme.of(context).textTheme.subtitle1,
+                        ),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.content_copy),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: keypair.key_id));
+                      },
+                    ),
+                  )
                 ],
               ),
             ),
@@ -110,6 +135,7 @@ class ContactInfoScene extends StatelessWidget {
                           item.name,
                           style: Theme.of(context).textTheme.caption,
                         ),
+                        SizedBox(height: 4),
                         Text(
                           item.value,
                           style: Theme.of(context).textTheme.subtitle1,

@@ -33,6 +33,8 @@ dependencies:
   flutter_colorpicker: ^0.3.4
   carousel_slider: ^2.2.1
   collection: any
+  file_picker: ^1.12.0
+  barcode_scan: any
 
 dev_dependencies:
   flutter_test:

@@ -5,7 +5,6 @@ import 'package:mailwayui/data/AppViewModel.dart';
 import 'package:mailwayui/scene/ChatTimeline.dart';
 import 'package:mailwayui/scene/Decrypt.dart';
 import 'package:mailwayui/scene/RecipientSelect.dart';
-import 'package:mailwayui/widget/AppDrawer.dart';
 
 class InboxScene extends StatelessWidget {
   @override
@@ -28,10 +27,6 @@ class InboxScene extends StatelessWidget {
         title: Text("Inbox"),
         actions: [
           IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () {},
-          ),
-          IconButton(
             icon: Icon(Icons.search),
             onPressed: () {},
           ),
@@ -47,9 +42,11 @@ class InboxScene extends StatelessWidget {
             label: 'Write',
             onTap: () {
               Navigator.of(context, rootNavigator: true).push(
-                  CupertinoPageRoute(
-                      builder: (context) => RecipientSelectScene(),
-                      fullscreenDialog: true));
+                CupertinoPageRoute(
+                  builder: (context) => RecipientSelectScene(),
+                  fullscreenDialog: true,
+                ),
+              );
             },
           ),
           SpeedDialChild(
@@ -58,9 +55,11 @@ class InboxScene extends StatelessWidget {
             label: 'Receive',
             onTap: () {
               Navigator.of(context, rootNavigator: true).push(
-                  CupertinoPageRoute(
-                      builder: (context) => DecryptScene(),
-                      fullscreenDialog: true));
+                CupertinoPageRoute(
+                  builder: (context) => DecryptScene(),
+                  fullscreenDialog: true,
+                ),
+              );
             },
           ),
         ],
@@ -72,10 +71,13 @@ class InboxScene extends StatelessWidget {
           final item = data.chats[index];
           return ListTile(
             onTap: () {
-              Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+              Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
                   builder: (context) => ChatTimelineScene(
-                        data: item,
-                      )));
+                    data: item,
+                  ),
+                ),
+              );
             },
             leading: Icon(Icons.account_circle),
             title: Text(item.chatMemberNameStubs.map((e) => e.name).join(", ")),

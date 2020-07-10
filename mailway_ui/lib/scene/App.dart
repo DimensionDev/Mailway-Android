@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
 import 'package:mailwayui/scene/Home.dart';
-import 'package:mailwayui/scene/Inbox.dart';
 
 class MailwayApp extends StatelessWidget {
   final pageTransition = const PageTransitionsTheme(

@@ -1,13 +1,13 @@
-import 'dart:io';
-
+import 'package:barcode_scan/barcode_scan.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/Keypair.dart';
 import 'package:mailwayui/scene/ContactInfo.dart';
-import 'package:mailwayui/scene/ModifyContact.dart';
 import 'package:mailwayui/extensions/color.dart';
 import 'package:mailwayui/widget/ContactAvatar.dart';
 
@@ -17,10 +17,15 @@ class ContactScene extends StatefulWidget {
 }
 
 class _ContactSceneState extends State<ContactScene> {
+  String filter = "";
+
   @override
   Widget build(BuildContext context) {
     final data = AppData.of(context);
     final viewModel = AppViewModel.of(context);
+    final contacts = data.contacts
+        .where((element) => element.name.contains(filter))
+        .toList();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -36,29 +41,51 @@ class _ContactSceneState extends State<ContactScene> {
         ),
         title: Text("Contacts"),
         actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {},
-          ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(
-            context,
-            rootNavigator: true,
-          ).push(
-            CupertinoPageRoute(
-              fullscreenDialog: true,
-              builder: (_) => ModifyContactScene(),
-            ),
-          );
-        },
+      floatingActionButton: SpeedDial(
+        overlayOpacity: 0,
         child: Icon(Icons.add),
+        children: [
+          SpeedDialChild(
+            child: Icon(Icons.code),
+            foregroundColor: Theme.of(context).primaryColor,
+            backgroundColor: Colors.white,
+            label: 'Scan QR code',
+            onTap: () async {
+              var result = await BarcodeScanner.scan();
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.folder),
+            foregroundColor: Theme.of(context).primaryColor,
+            backgroundColor: Colors.white,
+            label: 'Browser file',
+            onTap: () async {
+              final file = await FilePicker.getFile();
+            },
+          ),
+        ],
       ),
       body: CustomScrollView(
         physics: BouncingScrollPhysics(),
         slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: TextField(
+                decoration: InputDecoration(
+                  labelText: "Search",
+                  filled: true,
+                ),
+                onChanged: (text) {
+                  setState(() {
+                    filter = text;
+                  });
+                },
+              ),
+            ),
+          ),
           SliverToBoxAdapter(
             child: CarouselSlider.builder(
               itemCount: data.myKeys.length,
@@ -88,7 +115,7 @@ class _ContactSceneState extends State<ContactScene> {
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                final item = data.contacts[index];
+                final item = contacts[index];
                 return ListTile(
                   onTap: () async {
                     final result = await viewModel.getContactInfo(item);
@@ -108,7 +135,7 @@ class _ContactSceneState extends State<ContactScene> {
                   title: Text(item.name),
                 );
               },
-              childCount: data.contacts.length,
+              childCount: contacts.length,
             ),
           )
         ],
