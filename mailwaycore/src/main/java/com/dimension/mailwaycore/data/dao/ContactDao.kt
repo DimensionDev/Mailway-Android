@@ -23,6 +23,9 @@ interface ContactDao {
 
     @Query("SELECT * FROM identitycard")
     suspend fun getIdentityCard(): List<IdentityCard>
+
+    @Query("SELECT * FROM identitycard WHERE contactId = :id LIMIT 1")
+    suspend fun getIdentityCardByContactId(id: String): IdentityCard?
     @Transaction
     @Query("SELECT * FROM contact")
     suspend fun getContactsAndKeyPairs(): List<ContactAndKeyPair>

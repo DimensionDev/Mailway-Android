@@ -2,14 +2,25 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
+import 'package:mailwayui/data/entity/ContactAndKeyPairWithContactChannels.dart';
 import 'package:mailwayui/scene/ChatTimeline.dart';
 import 'package:mailwayui/scene/Decrypt.dart';
 import 'package:mailwayui/scene/RecipientSelect.dart';
 
 class InboxScene extends StatelessWidget {
+  final ContactAndKeyPairWithContactChannels filter;
+
+  const InboxScene({Key key, this.filter}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final data = AppData.of(context);
+    final messages = filter == null
+        ? data.chats
+        : data.chats
+            .where((element) =>
+                element.chat.identity_public_key == filter.keypair.public_key)
+            .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -24,7 +35,7 @@ class InboxScene extends StatelessWidget {
         textTheme: Theme.of(context).textTheme,
         actionsIconTheme: Theme.of(context).iconTheme,
         elevation: 0,
-        title: Text("Inbox"),
+        title: Text(filter?.contact?.name ?? "Inbox"),
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -66,9 +77,9 @@ class InboxScene extends StatelessWidget {
       ),
       body: ListView.builder(
         physics: BouncingScrollPhysics(),
-        itemCount: data.chats.length,
+        itemCount: messages.length,
         itemBuilder: (context, index) {
-          final item = data.chats[index];
+          final item = messages[index];
           return ListTile(
             onTap: () {
               Navigator.of(context, rootNavigator: true).push(

@@ -12,13 +12,13 @@ class IdentityItem extends StatelessWidget {
   final GestureTapCallback onTap;
   final EdgeInsetsGeometry padding;
 
-  const IdentityItem(
-      {Key key,
-      this.contact,
-      this.keypair,
-      this.onTap,
-      this.padding})
-      : super(key: key);
+  const IdentityItem({
+    Key key,
+    this.contact,
+    this.keypair,
+    this.onTap,
+    this.padding,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,18 +38,21 @@ class IdentityItem extends StatelessWidget {
               color: contact.color?.toColor() ?? Colors.grey,
             ),
             SizedBox(width: 8),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  contact.name,
-                  style: Theme.of(context).textTheme.subtitle1,
-                ),
-                Text(
-                  keypair.key_id.substring(keypair.key_id.length - 8),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    contact.name,
+                    style: Theme.of(context).textTheme.subtitle1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    keypair.key_id.substring(keypair.key_id.length - 8),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

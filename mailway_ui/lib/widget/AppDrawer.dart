@@ -30,15 +30,21 @@ class AppDrawer extends StatelessWidget {
                   ),
                   onTap: () {
                     Navigator.pop(context);
-                    (navigatorKey.currentState as NavigatorState).pushReplacement(
-                        MaterialPageRoute(builder: (context) => InboxScene()));
+                    (navigatorKey.currentState as NavigatorState)
+                        .pushReplacement(MaterialPageRoute(
+                            builder: (context) => InboxScene()));
                   },
                   children: appData.myKeys
                       .map(
                         (e) => IdentityItem(
                           contact: e.contact,
                           keypair: e.keypair,
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pop(context);
+                            (navigatorKey.currentState as NavigatorState)
+                                .pushReplacement(MaterialPageRoute(
+                                    builder: (context) => InboxScene(filter: e)));
+                          },
                         ),
                       )
                       .toList(),
@@ -55,8 +61,9 @@ class AppDrawer extends StatelessWidget {
                   color: Colors.green,
                   onTap: () {
                     Navigator.pop(context);
-                    (navigatorKey.currentState as NavigatorState).pushReplacement(MaterialPageRoute(
-                        builder: (context) => ContactScene()));
+                    (navigatorKey.currentState as NavigatorState)
+                        .pushReplacement(MaterialPageRoute(
+                            builder: (context) => ContactScene()));
                   },
                 ),
                 _DrawerMenuItem(
