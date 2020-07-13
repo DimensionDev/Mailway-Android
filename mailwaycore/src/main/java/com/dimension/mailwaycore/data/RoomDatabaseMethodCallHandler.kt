@@ -6,9 +6,7 @@ import com.dimension.mailwaycore.utils.JSON
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.builtins.serializer
 import org.koin.java.KoinJavaComponent
@@ -16,7 +14,7 @@ import org.koin.java.KoinJavaComponent
 class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
     MethodChannel.MethodCallHandler {
 
-    val database by KoinJavaComponent.inject(AppDatabase::class.java)
+    private val database by KoinJavaComponent.inject(AppDatabase::class.java)
 
     companion object {
         val CHANNEL = "com.dimension.mailwaycore/database"
@@ -27,6 +25,17 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
             scope.launch {
                 database.contactDao().getContactsWithPrivateKey().let {
                     JSON.stringify(ContactAndKeyPairWithContactChannels.serializer().list, it)
+                }.let {
+                    result.success(it)
+                }
+            }
+            return
+        }
+
+        if (call.method == "getContactsWithoutPrivateKey") {
+            scope.launch {
+                database.contactDao().getContactsWithoutPrivateKey().let {
+                    JSON.stringify(Contact.serializer().list, it)
                 }.let {
                     result.success(it)
                 }

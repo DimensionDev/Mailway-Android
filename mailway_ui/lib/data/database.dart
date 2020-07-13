@@ -46,6 +46,11 @@ class AppDatabase {
     return (json.decode(jsonData) as List).map((e) => ContactAndKeyPairWithContactChannels.fromJson(e)).toList();
   }
 
+  Future<List<Contact>> getContactsWithoutPrivateKey() async {
+    final jsonData = await databaseChannel.invokeMethod("getContactsWithoutPrivateKey");
+    return (json.decode(jsonData) as List).map((e) => Contact.fromJson(e)).toList();
+  }
+
   Future<ContactAndKeyPairWithContactChannels> queryContact(String contactId) async {
     final jsonData = await databaseChannel.invokeMethod("queryContact", {"contactId": contactId});
     return ContactAndKeyPairWithContactChannels.fromJson(json.decode(jsonData));

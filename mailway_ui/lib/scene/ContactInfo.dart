@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/ContactChannel.dart';
 import 'package:mailwayui/data/entity/Keypair.dart';
+import 'package:mailwayui/scene/ModifyContact.dart';
 import 'package:mailwayui/widget/ColoredTextIcon.dart';
 import 'package:mailwayui/widget/ContactAvatar.dart';
+import 'package:share/share.dart';
 
 class ContactInfoScene extends StatelessWidget {
   final Contact contact;
@@ -52,9 +54,28 @@ class ContactInfoScene extends StatelessWidget {
                         },
                       ),
                       actions: [
-                        IconButton(
-                          icon: Icon(Icons.more_vert),
-                          onPressed: () {},
+                        PopupMenuButton<String>(
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'edit',
+                              child: Text("Edit"),
+                            ),
+                          ],
+                          onSelected: (value) {
+                            switch (value) {
+                              case 'edit':
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ModifyContactScene(
+                                      keypair: keypair,
+                                      contact: contact,
+                                      channels: channels,
+                                    ),
+                                  ),
+                                );
+                                break;
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -72,13 +93,6 @@ class ContactInfoScene extends StatelessWidget {
                     contact.name,
                     style: Theme.of(context).textTheme.headline6,
                   ),
-//                  SizedBox(height: 8),
-//                  Text(
-//                    "Public Key",
-//                    style: Theme.of(context).textTheme.caption,
-//                  ),
-//                  SizedBox(height: 4),
-//                  Text(keypair.key_id.substring(keypair.key_id.length - 8)),
                   SizedBox(height: 40),
                   RaisedButton(
                     shape: RoundedRectangleBorder(

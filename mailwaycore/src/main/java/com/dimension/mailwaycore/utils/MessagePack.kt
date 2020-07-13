@@ -1,6 +1,5 @@
 package com.dimension.mailwaycore.utils
 
-import com.dimension.mailwaycore.ntge.IdentityCardData
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.msgpack.jackson.dataformat.MessagePackFactory

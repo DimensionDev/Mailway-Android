@@ -54,6 +54,7 @@ class _ContactSceneState extends State<ContactScene> {
             label: 'Scan QR code',
             onTap: () async {
               var result = await BarcodeScanner.scan();
+              await viewModel.insertIdentityCard(result.rawContent);
             },
           ),
           SpeedDialChild(
@@ -63,6 +64,8 @@ class _ContactSceneState extends State<ContactScene> {
             label: 'Browser file',
             onTap: () async {
               final file = await FilePicker.getFile();
+              final content = await file.readAsString();
+              await viewModel.insertIdentityCard(content);
             },
           ),
         ],

@@ -11,6 +11,9 @@ interface ContactDao {
     @Query("SELECT contact.*, keypair.id as keypair_id, keypair.contactId as keypair_contactId from contact join keypair on keypair.contactId = contact.id where keypair.private_key IS NOT NULL")
     suspend fun getContactsWithPrivateKey(): List<ContactAndKeyPairWithContactChannels>
 
+    @Query("SELECT contact.*, keypair.id as keypair_id, keypair.contactId as keypair_contactId from contact join keypair on keypair.contactId = contact.id where keypair.private_key IS NULL")
+    suspend fun getContactsWithoutPrivateKey(): List<Contact>
+
     @Transaction
     @Query("SELECT * FROM contact where id = :id LIMIT 1")
     suspend fun queryContact(id: String): ContactAndKeyPairWithContactChannels

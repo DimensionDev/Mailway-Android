@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
+import 'package:mailwayui/scene/ContactInfo.dart';
 import 'package:mailwayui/scene/ModifyContact.dart';
 import 'package:mailwayui/widget/IdentityItem.dart';
 
@@ -43,7 +44,7 @@ class _IdentityManagementSceneState extends State<IdentityManagementScene> {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
                         fullscreenDialog: true,
-                        builder: (context) => ModifyContactScene(
+                        builder: (context) => ContactInfoScene(
                           keypair: e.keypair,
                           contact: e.contact,
                           channels: e.channels,

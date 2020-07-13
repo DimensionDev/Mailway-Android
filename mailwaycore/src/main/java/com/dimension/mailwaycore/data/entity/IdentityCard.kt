@@ -8,5 +8,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class IdentityCard(
     @PrimaryKey var id: String,
+    var contactId: String,
     var identityCard: String
 )

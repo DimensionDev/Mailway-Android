@@ -39,4 +39,13 @@ class NtgeUtils {
     );
     return result;
   }
+
+  Future<bool> insertIdentityCard(String content) async {
+    return await _channel.invokeMethod(
+      'insert_identity_card',
+      {
+        'content': content,
+      },
+    );
+  }
 }

@@ -34,7 +34,8 @@ dependencies:
   carousel_slider: ^2.2.1
   collection: any
   file_picker: ^1.12.0
-  barcode_scan: any
+  barcode_scan: ^3.0.1
+  share: ^0.6.4+3
 
 dev_dependencies:
   flutter_test:

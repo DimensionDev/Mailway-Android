@@ -6,13 +6,10 @@ import 'package:mailwayui/data/entity/Chat.dart';
 import 'package:mailwayui/data/entity/ChatAndChatMemberNameStubCrossRef.dart';
 import 'package:mailwayui/data/entity/ChatMemberNameStub.dart';
 import 'package:mailwayui/data/entity/ChatMessage.dart';
-import 'package:mailwayui/data/entity/ChatWithChatMessages.dart';
 import 'package:mailwayui/data/entity/ChatWithChatMessagesWithChatMemberNameStubs.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
-import 'package:mailwayui/data/entity/ContactAndKeyPair.dart';
 import 'package:mailwayui/data/entity/ContactAndKeyPairWithContactChannels.dart';
 import 'package:mailwayui/data/entity/ContactChannel.dart';
-import 'package:mailwayui/data/entity/ContactWithChannels.dart';
 import 'package:mailwayui/data/entity/Keypair.dart';
 import 'package:mailwayui/data/entity/PayloadKind.dart';
 import 'package:mailwayui/ntge/NtgeUtils.dart';
@@ -66,7 +63,7 @@ class AppViewModel {
 
   Future initialization() async {
     _data.myKeys = await _database.getContactsWithPrivateKey();
-    _data.contacts = _data.myKeys.map((e) => e.contact).toList();
+    _data.contacts = await _database.getContactsWithoutPrivateKey();
     _data.chats =
         await _database.getChatWithChatMessagesWithChatMemberNameStubs();
     commitData(_data);
@@ -271,6 +268,14 @@ class AppViewModel {
     _data.chats =
         await _database.getChatWithChatMessagesWithChatMemberNameStubs();
     commitData(_data);
+  }
+
+  Future insertIdentityCard(String identityCardContent) async {
+    final result = await NtgeUtils().insertIdentityCard(identityCardContent);
+    if (result) {
+      _data.contacts = await _database.getContactsWithoutPrivateKey();
+      commitData(_data);
+    }
   }
 }
 
