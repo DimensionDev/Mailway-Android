@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class IdentitySupplementation(
     val name: String?,
-    val i18nNames: Map<String, String>?,
+    val i18n_names: Map<String, String>?,
     val channels: List<IdentityChannel>?,
-    val updatedAt: String?
+    val updated_at: String?
 )

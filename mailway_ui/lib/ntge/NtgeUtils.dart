@@ -5,8 +5,6 @@ import 'package:mailwayui/data/entity/Keypair.dart';
 import 'package:mailwayui/ntge/entity/NtgeEd25519Keypair.dart';
 
 class NtgeUtils {
-
-
   static final NtgeUtils _singleton = NtgeUtils._internal();
 
   factory NtgeUtils() {
@@ -25,14 +23,14 @@ class NtgeUtils {
   Future<String> encryptMessageWithExtra(
     Keypair sender,
     String message,
-    List<Keypair> recipient,
+    List<String> recipient,
     String messageId,
   ) async {
     final String result = await _channel.invokeMethod(
       "mailway_message_encode",
       {
         'content': message,
-        'recipient': jsonEncode(recipient.map((e) => e.toJson()).toList()),
+        'recipient': jsonEncode(recipient.toList()),
         'sender': jsonEncode(sender.toJson()),
         'message_id': messageId,
       },
@@ -45,6 +43,15 @@ class NtgeUtils {
       'insert_identity_card',
       {
         'content': content,
+      },
+    );
+  }
+
+  Future<String> generateShareContact(String contactId) async {
+    return await _channel.invokeMethod(
+      'generate_share_contact',
+      {
+        'contactId': contactId,
       },
     );
   }

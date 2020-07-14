@@ -17,12 +17,6 @@ class _SettingsSceneState extends State<SettingsScene> {
         actionsIconTheme: Theme.of(context).iconTheme,
         elevation: 0,
         title: Text("Settings"),
-        leading: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
       ),
       body: Container(
         child: ListView(

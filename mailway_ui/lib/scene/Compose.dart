@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
-import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/ContactAndKeyPairWithContactChannels.dart';
 import 'package:mailwayui/widget/IdentityItem.dart';
 
 class ComposeScene extends StatefulWidget {
-  final List<Contact> selectedContact;
+  final ContactAndKeyPairWithContactChannels sender;
+  final List<String> selectedContactPublicKey;
 
-  const ComposeScene({Key key, this.selectedContact}) : super(key: key);
+  const ComposeScene({Key key, this.selectedContactPublicKey, this.sender})
+      : super(key: key);
   @override
   _ComposeSceneState createState() => _ComposeSceneState();
 }
@@ -19,8 +20,9 @@ class _ComposeSceneState extends State<ComposeScene> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    selectedSender = AppData.of(context).myKeys.first;
+    selectedSender = widget.sender ?? AppData.of(context).myKeys.first;
   }
+
   @override
   Widget build(BuildContext context) {
     final data = AppData.of(context);
@@ -41,34 +43,31 @@ class _ComposeSceneState extends State<ComposeScene> {
           preferredSize: Size.fromHeight(1.0),
         ),
         centerTitle: true,
-        title: DropdownButton<ContactAndKeyPairWithContactChannels>(
-          isExpanded: true,
-          value: selectedSender,
-          underline: Container(),
-          items: data.myKeys
-              .map(
-                (e) => DropdownMenuItem<ContactAndKeyPairWithContactChannels>(
-                  value: e,
-                  child: IdentityItem(
-                    contact: e.contact,
-                    keypair: e.keypair,
-                    padding: EdgeInsets.all(0),
-                  ),
-                ),
+        title: widget.sender == null
+            ? DropdownButton<ContactAndKeyPairWithContactChannels>(
+                isExpanded: true,
+                value: selectedSender,
+                underline: Container(),
+                items: data.myKeys
+                    .map(
+                      (e) => DropdownMenuItem<
+                          ContactAndKeyPairWithContactChannels>(
+                        value: e,
+                        child: IdentityItem(
+                          contact: e.contact,
+                          keypair: e.keypair,
+                          padding: EdgeInsets.all(0),
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedSender = value;
+                  });
+                },
               )
-              .toList(),
-          onChanged: (value) {
-            setState(() {
-              selectedSender = value;
-            });
-          },
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+            : Text(widget.sender.contact.name),
         actions: [
           IconButton(
             icon: Icon(
@@ -76,7 +75,8 @@ class _ComposeSceneState extends State<ComposeScene> {
               color: Theme.of(context).primaryColor,
             ),
             onPressed: () async {
-              await viewModel.newChat(selectedSender, text, widget.selectedContact);
+              await viewModel.newChat(selectedSender.keypair, text,
+                  widget.selectedContactPublicKey);
               Navigator.of(context).pop();
             },
           ),

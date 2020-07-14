@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
 import 'package:mailwayui/data/entity/ChatWithChatMessagesWithChatMemberNameStubs.dart';
+import 'package:mailwayui/scene/Compose.dart';
+import 'package:mailwayui/utils/shareSheet.dart';
 
 class ChatTimelineScene extends StatelessWidget {
   final ChatWithChatMessagesWithChatMemberNameStubs data;
@@ -22,7 +25,23 @@ class ChatTimelineScene extends StatelessWidget {
         title: Text(data.chatMemberNameStubs.map((e) => e.name).join(", ")),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(
+            CupertinoPageRoute(
+              builder: (context) => ComposeScene(
+                sender: appData.myKeys.firstWhere(
+                  (element) =>
+                      element.keypair.public_key ==
+                      data.chat.identity_public_key,
+                  orElse: () => null,
+                ),
+                selectedContactPublicKey:
+                    data.chatMemberNameStubs.map((e) => e.public_key).toList(),
+              ),
+              fullscreenDialog: true,
+            ),
+          );
+        },
         child: Icon(Icons.reply_all),
       ),
       body: ListView.separated(
@@ -66,8 +85,10 @@ class ChatTimelineScene extends StatelessWidget {
                       onPressed: () {},
                     ),
                     IconButton(
-                      icon: Icon(Icons.more_vert),
-                      onPressed: () {},
+                      icon: Icon(Icons.share),
+                      onPressed: () {
+                        showShareSheet(context, item.armored_message);
+                      },
                     ),
                   ],
                 ),

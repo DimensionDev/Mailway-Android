@@ -35,7 +35,7 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
         if (call.method == "getContactsWithoutPrivateKey") {
             scope.launch {
                 database.contactDao().getContactsWithoutPrivateKey().let {
-                    JSON.stringify(Contact.serializer().list, it)
+                    JSON.stringify(ContactAndKeyPair.serializer().list, it)
                 }.let {
                     result.success(it)
                 }
@@ -59,14 +59,14 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
         }
 
         if (call.method == "getContactsAndKeyPairsIn") {
-            val contactIds = call.argument<String>("ids")?.let {
+            val publicKeys = call.argument<String>("publicKeys")?.let {
                 JSON.parse(String.serializer().list, it)
             } ?: run {
                 result.error("01", "argument exception", "require contact Ids")
                 return
             }
             scope.launch {
-                result.success(database.contactDao().getContactsAndKeyPairsIn(contactIds).let {
+                result.success(database.contactDao().getContactsAndKeyPairsIn(publicKeys).let {
                     JSON.stringify(ContactAndKeyPair.serializer().list, it)
                 })
             }

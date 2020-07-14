@@ -12,6 +12,24 @@ class InboxScene extends StatelessWidget {
 
   const InboxScene({Key key, this.filter}) : super(key: key);
 
+  void showCreateKeyDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Identity Not Found"),
+        content: Text("You should create at least one identity first!"),
+        actions: [
+          FlatButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text("Cancel"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final data = AppData.of(context);
@@ -52,12 +70,16 @@ class InboxScene extends StatelessWidget {
             backgroundColor: Colors.green,
             label: 'Write',
             onTap: () {
-              Navigator.of(context, rootNavigator: true).push(
-                CupertinoPageRoute(
-                  builder: (context) => RecipientSelectScene(),
-                  fullscreenDialog: true,
-                ),
-              );
+              if (data.myKeys.length == 0) {
+                showCreateKeyDialog(context);
+              } else {
+                Navigator.of(context, rootNavigator: true).push(
+                  CupertinoPageRoute(
+                    builder: (context) => RecipientSelectScene(),
+                    fullscreenDialog: true,
+                  ),
+                );
+              }
             },
           ),
           SpeedDialChild(
@@ -65,12 +87,16 @@ class InboxScene extends StatelessWidget {
             backgroundColor: Colors.lightBlue,
             label: 'Receive',
             onTap: () {
-              Navigator.of(context, rootNavigator: true).push(
-                CupertinoPageRoute(
-                  builder: (context) => DecryptScene(),
-                  fullscreenDialog: true,
-                ),
-              );
+              if (data.myKeys.length == 0) {
+                showCreateKeyDialog(context);
+              } else {
+                Navigator.of(context, rootNavigator: true).push(
+                  CupertinoPageRoute(
+                    builder: (context) => DecryptScene(),
+                    fullscreenDialog: true,
+                  ),
+                );
+              }
             },
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mailwayui/data/AppViewModel.dart';
 
 class DecryptScene extends StatefulWidget {
   @override
@@ -6,8 +7,12 @@ class DecryptScene extends StatefulWidget {
 }
 
 class _DecryptSceneState extends State<DecryptScene> {
+  String text = "";
+
   @override
   Widget build(BuildContext context) {
+    final viewModel = AppViewModel.of(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -15,17 +20,13 @@ class _DecryptSceneState extends State<DecryptScene> {
         textTheme: Theme.of(context).textTheme,
         actionsIconTheme: Theme.of(context).iconTheme,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         title: Text("Decrypting"),
         actions: [
           IconButton(
             icon: Icon(Icons.check),
-            onPressed: () {},
+            onPressed: () {
+              viewModel.decrypt(text);
+            },
           ),
         ],
       ),
@@ -48,6 +49,12 @@ class _DecryptSceneState extends State<DecryptScene> {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      text = value;
+                    });
+                  },
+                  scrollPhysics: BouncingScrollPhysics(),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                   ),

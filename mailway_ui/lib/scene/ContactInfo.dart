@@ -4,7 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/ContactChannel.dart';
 import 'package:mailwayui/data/entity/Keypair.dart';
+import 'package:mailwayui/ntge/NtgeUtils.dart';
 import 'package:mailwayui/scene/ModifyContact.dart';
+import 'package:mailwayui/scene/QRCode.dart';
+import 'package:mailwayui/utils/shareSheet.dart';
 import 'package:mailwayui/widget/ColoredTextIcon.dart';
 import 'package:mailwayui/widget/ContactAvatar.dart';
 import 'package:share/share.dart';
@@ -99,11 +102,15 @@ class ContactInfoScene extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999.0),
                     ),
                     color: Theme.of(context).primaryColor,
-                    onPressed: () {},
+                    onPressed: () async {
+                      final data =
+                          await NtgeUtils().generateShareContact(contact.id);
+                      showShareSheet(context, data);
+                    },
                     child: Padding(
                       padding: EdgeInsets.all(16),
                       child: ColoredTextIcon(
-                        child: Text("Share Contact"),
+                        child: Text("Share Bizcard"),
                       ),
                     ),
                   ),

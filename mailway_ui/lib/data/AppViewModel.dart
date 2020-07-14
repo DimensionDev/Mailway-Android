@@ -8,6 +8,7 @@ import 'package:mailwayui/data/entity/ChatMemberNameStub.dart';
 import 'package:mailwayui/data/entity/ChatMessage.dart';
 import 'package:mailwayui/data/entity/ChatWithChatMessagesWithChatMemberNameStubs.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
+import 'package:mailwayui/data/entity/ContactAndKeyPair.dart';
 import 'package:mailwayui/data/entity/ContactAndKeyPairWithContactChannels.dart';
 import 'package:mailwayui/data/entity/ContactChannel.dart';
 import 'package:mailwayui/data/entity/Keypair.dart';
@@ -18,7 +19,7 @@ import 'package:uuid/uuid.dart';
 
 class AppData {
   List<ContactAndKeyPairWithContactChannels> myKeys;
-  List<Contact> contacts;
+  List<ContactAndKeyPair> contacts;
   List<ChatWithChatMessagesWithChatMemberNameStubs> chats;
 
   AppData({
@@ -183,20 +184,20 @@ class AppViewModel {
   }
 
   Future newChat(
-    ContactAndKeyPairWithContactChannels sender,
+    Keypair sender,
     String text,
-    List<Contact> selectedContact,
+    List<String> selectedContact,
   ) async {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final selectedContactsWithKeys = await _database
-        .getContactsAndKeyPairsIn(selectedContact.map((e) => e.id).toList());
     final messageId = Uuid().v4().toString();
     final armorMessage = await NtgeUtils().encryptMessageWithExtra(
-      sender.keypair,
+      sender,
       text,
-      selectedContactsWithKeys.map((e) => e.keypair).toList(),
+      selectedContact,
       messageId,
     );
+    final selectedContactsWithKeys =
+        await _database.getContactsAndKeyPairsIn(selectedContact.toList());
     final chatMembers = await _database.getChatMemberNameStubsIn(
         selectedContactsWithKeys.map((e) => e.keypair.key_id).toList());
     final newMembers = selectedContactsWithKeys
@@ -220,7 +221,7 @@ class AppViewModel {
     Function deepEq = const DeepCollectionEquality.unordered().equals;
     final currentChatWithStubs = allChatWithStubs.firstWhere(
       (element) =>
-          element.chat.identity_public_key == sender.keypair.public_key &&
+          element.chat.identity_public_key == sender.public_key &&
           deepEq(
             element.chatMemberNameStubs.map((e) => e.key_id).toList(),
             selectedContactsWithKeys.map((e) => e.keypair.key_id).toList(),
@@ -232,7 +233,7 @@ class AppViewModel {
       currentChat = Chat(
         chatId: Uuid().v4().toString(),
         title: "",
-        identity_public_key: sender.keypair.public_key,
+        identity_public_key: sender.public_key,
         created_at: timestamp,
         updated_at: timestamp,
       );
@@ -253,7 +254,7 @@ class AppViewModel {
       compose_timestamp: timestamp,
       receive_timestamp: timestamp,
       share_timestamp: null,
-      sender_public_key: sender.keypair.public_key,
+      sender_public_key: sender.public_key,
       recipient_public_keys:
           selectedContactsWithKeys.map((e) => e.keypair.public_key).toList(),
       payload_kind: PayloadKind.plaintext,
@@ -277,6 +278,8 @@ class AppViewModel {
       commitData(_data);
     }
   }
+
+  Future decrypt(String text) async {}
 }
 
 class AppStateManager extends StatefulWidget {

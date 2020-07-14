@@ -25,12 +25,6 @@ class _IdentityManagementSceneState extends State<IdentityManagementScene> {
         actionsIconTheme: Theme.of(context).iconTheme,
         elevation: 0,
         title: Text("Identity"),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
       ),
       body: Container(
         child: ListView(

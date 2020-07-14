@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
 import 'package:mailwayui/data/entity/Contact.dart';
+import 'package:mailwayui/data/entity/ContactAndKeyPair.dart';
 import 'package:mailwayui/scene/Compose.dart';
 import 'package:mailwayui/widget/ColoredTextIcon.dart';
 
@@ -12,7 +13,7 @@ class RecipientSelectScene extends StatefulWidget {
 
 class _RecipientSelectSceneState extends State<RecipientSelectScene> {
   String filter;
-  List<Contact> selectedContact;
+  List<ContactAndKeyPair> selectedContact;
 
   @override
   void initState() {
@@ -32,26 +33,27 @@ class _RecipientSelectSceneState extends State<RecipientSelectScene> {
         actionsIconTheme: Theme.of(context).iconTheme,
         elevation: 0,
         title: Text("Add Users"),
-        leading: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         actions: [
           FlatButton(
-            onPressed: () {
-              Navigator.of(context).pushReplacement(CupertinoPageRoute(
-                  builder: (context) => ComposeScene(
-                        selectedContact: selectedContact,
+            onPressed: selectedContact.length == 0
+                ? null
+                : () {
+                    Navigator.of(context).pushReplacement(
+                      CupertinoPageRoute(
+                        builder: (context) => ComposeScene(
+                          selectedContactPublicKey: selectedContact
+                              .map((e) => e.keypair.public_key)
+                              .toList(),
+                        ),
+                        fullscreenDialog: true,
                       ),
-                  fullscreenDialog: true));
-            },
+                    );
+                  },
             child: ColoredTextIcon(
               color: Theme.of(context).primaryColor,
               child: Text("DONE"),
             ),
-          )
+          ),
         ],
       ),
       body: ListView(
@@ -72,14 +74,14 @@ class _RecipientSelectSceneState extends State<RecipientSelectScene> {
           ),
         ]..addAll(
             data.contacts
-                .where((element) => element.name.contains(filter))
+                .where((element) => element.contact.name.contains(filter))
                 .map(
                   (e) => CheckboxListTile(
                     secondary: FittedBox(
                       fit: BoxFit.fill,
                       child: Icon(Icons.account_circle),
                     ),
-                    title: Text(e.name),
+                    title: Text(e.contact.name),
                     value: selectedContact.contains(e),
                     onChanged: (bool value) {
                       if (selectedContact.contains(e)) {

@@ -9,6 +9,7 @@ import 'package:mailwayui/data/entity/Contact.dart';
 import 'package:mailwayui/data/entity/Keypair.dart';
 import 'package:mailwayui/scene/ContactInfo.dart';
 import 'package:mailwayui/extensions/color.dart';
+import 'package:mailwayui/scene/ImportConrtact.dart';
 import 'package:mailwayui/widget/ContactAvatar.dart';
 
 class ContactScene extends StatefulWidget {
@@ -24,7 +25,7 @@ class _ContactSceneState extends State<ContactScene> {
     final data = AppData.of(context);
     final viewModel = AppViewModel.of(context);
     final contacts = data.contacts
-        .where((element) => element.name.contains(filter))
+        .where((element) => element.contact.name.contains(filter))
         .toList();
     return Scaffold(
       appBar: AppBar(
@@ -40,35 +41,18 @@ class _ContactSceneState extends State<ContactScene> {
           },
         ),
         title: Text("Contacts"),
-        actions: [
-        ],
+        actions: [],
       ),
-      floatingActionButton: SpeedDial(
-        overlayOpacity: 0,
+      floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        children: [
-          SpeedDialChild(
-            child: Icon(Icons.code),
-            foregroundColor: Theme.of(context).primaryColor,
-            backgroundColor: Colors.white,
-            label: 'Scan QR code',
-            onTap: () async {
-              var result = await BarcodeScanner.scan();
-              await viewModel.insertIdentityCard(result.rawContent);
-            },
-          ),
-          SpeedDialChild(
-            child: Icon(Icons.folder),
-            foregroundColor: Theme.of(context).primaryColor,
-            backgroundColor: Colors.white,
-            label: 'Browser file',
-            onTap: () async {
-              final file = await FilePicker.getFile();
-              final content = await file.readAsString();
-              await viewModel.insertIdentityCard(content);
-            },
-          ),
-        ],
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).push(
+            CupertinoPageRoute(
+              builder: (context) => ImportContactScene(),
+              fullscreenDialog: true,
+            ),
+          );
+        },
       ),
       body: CustomScrollView(
         physics: BouncingScrollPhysics(),
@@ -102,7 +86,6 @@ class _ContactSceneState extends State<ContactScene> {
                   padding:
                       EdgeInsets.only(top: 16, bottom: 32, left: 8, right: 8),
                   child: Card(
-                    elevation: 16,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -121,11 +104,11 @@ class _ContactSceneState extends State<ContactScene> {
                 final item = contacts[index];
                 return ListTile(
                   onTap: () async {
-                    final result = await viewModel.getContactInfo(item);
+                    final result = await viewModel.getContactInfo(item.contact);
                     Navigator.of(context, rootNavigator: true).push(
                       MaterialPageRoute(
                         builder: (context) => ContactInfoScene(
-                          contact: item,
+                          contact: item.contact,
                           keypair: result.keypair,
                           channels: result.channels,
                         ),
@@ -133,9 +116,9 @@ class _ContactSceneState extends State<ContactScene> {
                     );
                   },
                   leading: ContactAvatar(
-                    contact: item,
+                    contact: item.contact,
                   ),
-                  title: Text(item.name),
+                  title: Text(item.contact.name),
                 );
               },
               childCount: contacts.length,

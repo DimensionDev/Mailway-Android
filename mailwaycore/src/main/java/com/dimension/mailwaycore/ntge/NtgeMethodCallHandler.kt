@@ -5,11 +5,11 @@ import com.dimension.mailwaycore.data.entity.Contact
 import com.dimension.mailwaycore.data.entity.ContactChannel
 import com.dimension.mailwaycore.data.entity.IdentityCard
 import com.dimension.mailwaycore.data.entity.Keypair
-import com.dimension.mailwaycore.ntge.entity.MailwayMessageExtra
-import com.dimension.mailwaycore.ntge.entity.NtgeEd25519Keypair
-import com.dimension.mailwaycore.ntge.entity.toIdentityCardData
+import com.dimension.mailwaycore.ntge.entity.*
 import com.dimension.mailwaycore.utils.JSON
+import com.dimension.mailwaycore.utils.toISODateString
 import com.dimension.mailwaycore.utils.toMessagePack
+import com.dimension.ntge.Hmac256
 import com.dimension.ntge.ed25519.Ed25519Keypair
 import com.dimension.ntge.ed25519.Ed25519PrivateKey
 import com.dimension.ntge.ed25519.Ed25519PublicKey
@@ -21,6 +21,7 @@ import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.serializer
 import org.koin.java.KoinJavaComponent
 import java.util.*
 
@@ -83,7 +84,7 @@ class NtgeMethodCallHandler(private val scope: CoroutineScope) : MethodChannel.M
                     return
                 }
                 val recipients = call.argument<String>("recipient")?.let {
-                    JSON.parse(Keypair.serializer().list, it)
+                    JSON.parse(String.serializer().list, it)
                 } ?: run {
                     result.error("01", "argument exception", "require public keys to encode")
                     return
@@ -95,7 +96,7 @@ class NtgeMethodCallHandler(private val scope: CoroutineScope) : MethodChannel.M
                     return
                 }
 
-                val pubkeys = recipients.map { Ed25519PublicKey.deserialize(it.public_key) }
+                val pubkeys = recipients.map { Ed25519PublicKey.deserialize(it) }
                 val prikey = Ed25519PrivateKey.deserialize(sender.private_key!!)
                 val encResult = run {
                     val x25519pubkeys = pubkeys.map { it.toX25519() }.toTypedArray()
@@ -105,7 +106,7 @@ class NtgeMethodCallHandler(private val scope: CoroutineScope) : MethodChannel.M
                             extra = MailwayMessageExtra(
                                 version = 1,
                                 sender_key = sender.public_key,
-                                recipient_keys = recipients.map { it.public_key },
+                                recipient_keys = recipients,
                                 message_id = messageId,
                                 quote_message = null
                             ).toMessagePack(),
@@ -163,15 +164,35 @@ class NtgeMethodCallHandler(private val scope: CoroutineScope) : MethodChannel.M
                     )
                     return
                 }
+                val mac = data.info?.mac
+                val signature = data.info?.signature
+                if (mac == null || signature == null) {
+                    result.error(
+                        "01",
+                        "argument exception",
+                        "invalid identity content"
+                    )
+                    return
+                }
+                if (!Ed25519PublicKey.deserialize(data.info.public_key_armor).verify(mac, signature)) {
+                    result.error(
+                        "05",
+                        "argument exception",
+                        "verify identity content failed"
+                    )
+                    return
+                }
                 val contact = Contact(
                     id = UUID.randomUUID().toString(),
-                    name = data.info.name ?: "",
+                    name = data.info.name ?: data.supplementation?.name ?: "",
                     avatar = null,
                     note = null,
                     color = null,
                     created_at = System.currentTimeMillis(),
                     updated_at = System.currentTimeMillis(),
-                    i18nNames = data.supplementation?.i18nNames
+                    i18nNames = (data.info?.i18n_names
+                        ?: emptyMap()) + (data.supplementation?.i18n_names
+                        ?: emptyMap())
                 )
                 val keypair = Keypair(
                     id = UUID.randomUUID().toString(),
@@ -182,7 +203,9 @@ class NtgeMethodCallHandler(private val scope: CoroutineScope) : MethodChannel.M
                     contactId = contact.id,
                     private_key = null
                 )
-                val contactChannels = data.supplementation?.channels?.map {
+                val contactChannels = ((data.info.channels
+                    ?: emptyList()) + (data.supplementation?.channels
+                    ?: emptyList())).map {
                     ContactChannel(
                         id = UUID.randomUUID().toString(),
                         name = it.name ?: "",
@@ -205,6 +228,64 @@ class NtgeMethodCallHandler(private val scope: CoroutineScope) : MethodChannel.M
                         database.contactDao().insert(*it.toTypedArray())
                     }
                     result.success(true)
+                }
+            }
+            "generate_share_contact" -> {
+                val id = call.argument<String>("contactId") ?: run {
+                    result.error(
+                        "01",
+                        "argument exception",
+                        "require content to parse contact card"
+                    )
+                    return
+                }
+                scope.launch {
+                    val data =
+                        database.contactDao().getIdentityCardByContactId(id)?.identityCard ?: run {
+                            val contact = database.contactDao().queryContact(id)
+                            val mac = run {
+                                var bytes =
+                                    contact.keypair.public_key.toByteArray() + contact.contact.name.toByteArray()
+                                contact.contact.i18nNames?.let { names ->
+                                    bytes += names.toList().sortedBy { it.first.toLowerCase() }
+                                        .map {
+                                            it.first.toLowerCase()
+                                                .toByteArray() + it.second.toByteArray()
+                                        }.flatMap { it.toList() }
+                                }
+                                contact.channels.let { channels ->
+                                    bytes += channels.map { it.name.toByteArray() + it.value.toByteArray() }
+                                        .flatMap { it.toList() }
+                                }
+                                bytes += contact.contact.updated_at.toISODateString().toByteArray()
+                                Ed25519PublicKey.deserialize(contact.keypair.public_key)
+                                    .use { ed25519PublicKey ->
+                                        Hmac256.calculate(ed25519PublicKey, bytes)
+                                    }
+                            }
+                            val signature =
+                                Ed25519PrivateKey.deserialize(contact.keypair.private_key!!).use {
+                                    it.sign(mac)
+                                }
+                            IdentityCardData(
+                                info = IdentityInfo(
+                                    public_key_armor = contact.keypair.public_key,
+                                    name = contact.contact.name,
+                                    i18n_names = contact.contact.i18nNames,
+                                    channels = contact.channels.map {
+                                        IdentityChannel(
+                                            name = it.name,
+                                            value = it.value
+                                        )
+                                    },
+                                    updated_at = contact.contact.updated_at.toISODateString(),
+                                    mac = mac,
+                                    signature = signature
+                                ),
+                                supplementation = null
+                            ).toString()
+                        }
+                    result.success(data)
                 }
             }
             else -> result.notImplemented()
