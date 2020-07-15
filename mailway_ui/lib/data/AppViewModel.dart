@@ -198,13 +198,14 @@ class AppViewModel {
       selectedContact,
       messageId,
     );
-    await insertOrCreateChat(selectedContact, sender.public_key, timestamp,
+    await insertOrCreateChat(selectedContact, sender.public_key, sender.public_key, timestamp,
         text, armorMessage, messageId);
   }
 
   Future insertOrCreateChat(
     List<String> selectedContact,
     String senderPublicKey,
+    String messageSenderKey,
     int timestamp,
     String text,
     String armorMessage,
@@ -289,7 +290,7 @@ class AppViewModel {
       compose_timestamp: timestamp,
       receive_timestamp: timestamp,
       share_timestamp: null,
-      sender_public_key: senderPublicKey,
+      sender_public_key: messageSenderKey,
       recipient_public_keys:
           selectedContactsWithKeys.map((e) => e.keypair.public_key).toList(),
       payload_kind: PayloadKind.plaintext,

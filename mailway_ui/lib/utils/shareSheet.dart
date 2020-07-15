@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:mailwayui/scene/QRCode.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
+import 'package:share_extend/share_extend.dart';
+import 'package:uuid/uuid.dart';
 
-void showShareSheet(BuildContext context, String data) {
+void showShareSheet(BuildContext context, String data, {String fileName}) {
   showModalBottomSheet(
     context: context,
     builder: (context) => Column(
@@ -16,7 +21,13 @@ void showShareSheet(BuildContext context, String data) {
           title: Text("Share Text"),
         ),
         ListTile(
-          onTap: () {},
+          onTap: () async {
+            Navigator.of(context).pop();
+            final tempDir = (await getTemporaryDirectory()).path;
+            final tempFile = File('$tempDir/${fileName ?? Uuid().v4().toString()}');
+            await tempFile.writeAsString(data);
+            ShareExtend.share(tempFile.path, 'file');
+        },
           leading: Icon(Icons.insert_drive_file),
           title: Text("Share file"),
         ),

@@ -105,7 +105,7 @@ class ContactInfoScene extends StatelessWidget {
                     onPressed: () async {
                       final data =
                           await NtgeUtils().generateShareContact(contact.id);
-                      showShareSheet(context, data);
+                      showShareSheet(context, data, fileName: "${contact.name}.mbc");
                     },
                     child: Padding(
                       padding: EdgeInsets.all(16),

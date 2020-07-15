@@ -74,6 +74,7 @@ class _DecryptSceneState extends State<DecryptScene> {
     await viewModel.insertOrCreateChat(
       recipientKeys,
       key.keypair.public_key,
+      result.extra.sender_key,
       DateTime.now().millisecondsSinceEpoch,
       result.message,
       message,

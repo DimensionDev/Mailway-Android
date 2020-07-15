@@ -1,6 +1,7 @@
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mailwayui/data/AppViewModel.dart';
 
 class ImportContactScene extends StatelessWidget {
@@ -43,6 +44,15 @@ class ImportContactScene extends StatelessWidget {
             },
             leading: Icon(Icons.insert_drive_file),
             title: Text("Import a Bizcard file"),
+          ),
+          ListTile(
+            onTap: () async {
+              ClipboardData data = await Clipboard.getData('text/plain');
+              await viewModel.insertIdentityCard(data.text);
+              Navigator.of(context).pop();
+            },
+            leading: Icon(Icons.dashboard),
+            title: Text("From clipboard"),
           ),
         ],
       ),

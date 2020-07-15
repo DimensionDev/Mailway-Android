@@ -89,7 +89,7 @@ class ChatTimelineScene extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.share),
                       onPressed: () {
-                        showShareSheet(context, item.chatMessage.armored_message);
+                        showShareSheet(context, item.chatMessage.armored_message, fileName: "${item.chatMessage.message_id}.mem");
                       },
                     ),
                   ],
