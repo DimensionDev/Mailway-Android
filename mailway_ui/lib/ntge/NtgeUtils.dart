@@ -55,4 +55,15 @@ class NtgeUtils {
       },
     );
   }
+
+  Future<DecodeResult> decodeMessageWithExtra(String message) async {
+    final String result = await _channel.invokeMethod(
+      'mailway_message_decode',
+      {
+        'message': message,
+      },
+    );
+    return DecodeResult.fromJson(json.decode(result));
+    
+  }
 }

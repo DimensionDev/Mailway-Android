@@ -26,9 +26,7 @@ data class ChatMessage(
     var payload: String?,
     var payload_kind: PayloadKind,
     var version: Int?,
-    @JsonIgnore
     var chatId: String,
-    @JsonIgnore
     var quote_message_id: String?
 )
 
@@ -38,7 +36,7 @@ data class ChatMessageAndQuoteMessage(
     @Embedded val chatMessage: ChatMessage,
     @Relation(
         parentColumn = "id",
-        entityColumn = "chat_message_id"
+        entityColumn = "chatMessageId"
     )
     val quoteMessage: QuoteMessage
 )

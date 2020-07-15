@@ -31,7 +31,7 @@ class MainActivity : FlutterActivity() {
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             NtgeMethodCallHandler.CHANNEL
-        ).setMethodCallHandler(NtgeMethodCallHandler(lifecycleScope))
+        ).setMethodCallHandler(NtgeMethodCallHandler(lifecycleScope, this))
     }
 }
 

@@ -15,7 +15,6 @@ class QuoteMessage {
   final String digest_description;
   final String sender_name;
   final String sender_public_key;
-  final String chat_message_id;
 
   QuoteMessage({
     this.id,
@@ -28,7 +27,6 @@ class QuoteMessage {
     this.digest_description,
     this.sender_name,
     this.sender_public_key,
-    this.chat_message_id,
   });
 
 

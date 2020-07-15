@@ -119,7 +119,7 @@ class InboxScene extends StatelessWidget {
             leading: Icon(Icons.account_circle),
             title: Text(item.chatMemberNameStubs.map((e) => e.name).join(", ")),
             subtitle: Text(
-              item.messages.last?.payload,
+              item.messages.last?.chatMessage?.payload,
               maxLines: 1,
             ),
           );

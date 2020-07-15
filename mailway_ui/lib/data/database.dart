@@ -16,6 +16,7 @@ import 'package:mailwayui/data/entity/ContactChannel.dart';
 import 'package:mailwayui/data/entity/ContactWithChannels.dart';
 import 'package:mailwayui/data/entity/IdentityCard.dart';
 import 'package:mailwayui/data/entity/Keypair.dart';
+import 'package:mailwayui/data/entity/QuoteMessage.dart';
 
 class AppDatabase {
   final databaseChannel =
@@ -37,6 +38,24 @@ class AppDatabase {
     return (json.decode(jsonData) as List)
         .map((e) => ChatMemberNameStub.fromJson(e))
         .toList();
+  }
+
+  Future<List<ChatMemberNameStub>> getChatMemberNameStubsByPublicKey(
+      List<String> publicKeys) async {
+    final jsonData = await databaseChannel.invokeMethod(
+        "getChatMemberNameStubsIn", {"publicKeys": jsonEncode(publicKeys)});
+    return (json.decode(jsonData) as List)
+        .map((e) => ChatMemberNameStub.fromJson(e))
+        .toList();
+  }
+
+  Future<ChatMessage> getChatMessageByMessageId(String message_id) async {
+    final jsonData = await databaseChannel
+        .invokeMethod("getChatMessageByMessageId", {"message_id": message_id});
+    if (jsonData == null) {
+      return null;
+    }
+    return ChatMessage.fromJson(json.decode(jsonData));
   }
 
   Future<ChatWithChatMemberNameStubs> getChatsWithChatMemberNameStubsIn(
@@ -190,6 +209,11 @@ class AppDatabase {
   Future insertIdentityCard(IdentityCard data) async {
     await databaseChannel.invokeMethod("insert",
         {"table": "IdentityCard", "data": json.encode(data.toJson())});
+  }
+
+  Future insertQuoteMessage(QuoteMessage data) async {
+    await databaseChannel.invokeMethod("insert",
+        {"table": "QuoteMessage", "data": json.encode(data.toJson())});
   }
 
   Future updateChat(Chat data) async {

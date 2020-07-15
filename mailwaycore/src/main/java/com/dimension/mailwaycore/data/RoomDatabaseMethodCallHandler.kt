@@ -1,6 +1,5 @@
 package com.dimension.mailwaycore.data
 
-import android.util.Log
 import com.dimension.mailwaycore.data.entity.*
 import com.dimension.mailwaycore.utils.JSON
 import io.flutter.plugin.common.MethodCall
@@ -87,6 +86,35 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
             return
         }
 
+        if (call.method == "getChatMemberNameStubsByPublicKey") {
+            val publicKeys = call.argument<String>("publicKeys")?.let {
+                JSON.parse(String.serializer().list, it)
+            } ?: run {
+                result.error("01", "argument exception", "require pulicKeys")
+                return
+            }
+            scope.launch {
+                result.success(database.chatDao().getChatMemberNameStubsByPublicKey(publicKeys).let {
+                    JSON.stringify(ChatMemberNameStub.serializer().list, it)
+                })
+            }
+            return
+        }
+
+        if (call.method == "getChatMessageByMessageId") {
+            val messageId = call.argument<String>("message_id") ?: kotlin.run {
+                result.error("01", "argument exception", "require sender")
+                return
+            }
+            scope.launch {
+                val chat = database.chatDao().getChatMessageByMessageId(messageId)
+                result.success(chat?.let {
+                    JSON.stringify(ChatMessage.serializer(), it)
+                })
+            }
+            return
+        }
+
         if (call.method == "getChatsWithChatMemberNameStubsIn") {
             val contactIds = call.argument<String>("ids")?.let {
                 JSON.parse(String.serializer().list, it)
@@ -100,8 +128,6 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
             }
             scope.launch {
                 val chat = database.chatDao().getChatsWithChatMemberNameStubsIn(senderId = sender, ids = contactIds, length = contactIds.size)
-                Log.i("chat", chat?.let {
-                    JSON.stringify(ChatWithChatMemberNameStubs.serializer(), it) } ?: "null")
                 result.success(chat?.let {
                     JSON.stringify(ChatWithChatMemberNameStubs.serializer(), it)
                 })
@@ -214,6 +240,12 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
                                 result.success(true)
                             }
                         }
+                        "QuoteMessage" -> {
+                            JSON.parse(QuoteMessage.serializer(), json).let {
+                                database.chatDao().insert(it)
+                                result.success(true)
+                            }
+                        }
                         else -> {
                             result.error("02", "argument out of range exception", "unknown table name $table")
                         }
@@ -269,6 +301,12 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
                                 result.success(true)
                             }
                         }
+                        "QuoteMessage" -> {
+                            JSON.parse(QuoteMessage.serializer(), json).let {
+                                database.chatDao().update(it)
+                                result.success(true)
+                            }
+                        }
                         else -> {
                             result.error("02", "argument out of range exception", "unknown table name $table")
                         }
@@ -321,6 +359,12 @@ class RoomDatabaseMethodCallHandler(private val scope: CoroutineScope) :
                         "IdentityCard" -> {
                             JSON.parse(IdentityCard.serializer(), json).let {
                                 database.contactDao().delete(it)
+                                result.success(true)
+                            }
+                        }
+                        "QuoteMessage" -> {
+                            JSON.parse(QuoteMessage.serializer(), json).let {
+                                database.chatDao().delete(it)
                                 result.success(true)
                             }
                         }

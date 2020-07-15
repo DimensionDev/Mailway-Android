@@ -19,7 +19,5 @@ data class QuoteMessage(
     var digest_kind: PayloadKind,
     var digest_description: String,
     var sender_name: String,
-    var sender_public_key: String,
-    @JsonIgnore
-    var chat_message_id: String
+    var sender_public_key: String
 )

@@ -18,6 +18,9 @@ interface ContactDao {
     @Query("SELECT * FROM contact where id = :id LIMIT 1")
     suspend fun queryContact(id: String): ContactAndKeyPairWithContactChannels
 
+    @Query("SELECT contact.*, keypair.id as keypair_id, keypair.contactId as keypair_contactId from contact join keypair on keypair.contactId = contact.id where keypair.public_key = :publicKey LIMIT 1")
+    suspend fun findContactWithPublicKey(publicKey: String): Contact?
+
     @Query("SELECT * FROM contact")
     suspend fun getContacts(): List<Contact>
 

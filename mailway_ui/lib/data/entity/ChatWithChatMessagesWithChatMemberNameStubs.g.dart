@@ -14,8 +14,9 @@ ChatWithChatMessagesWithChatMemberNameStubs
         ? null
         : Chat.fromJson(json['chat'] as Map<String, dynamic>),
     messages: (json['messages'] as List)
-        ?.map((e) =>
-            e == null ? null : ChatMessage.fromJson(e as Map<String, dynamic>))
+        ?.map((e) => e == null
+            ? null
+            : ChatMessageAndQuoteMessage.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     chatMemberNameStubs: (json['chatMemberNameStubs'] as List)
         ?.map((e) => e == null

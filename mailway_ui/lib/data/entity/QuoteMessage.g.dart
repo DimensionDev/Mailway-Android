@@ -19,7 +19,6 @@ QuoteMessage _$QuoteMessageFromJson(Map<String, dynamic> json) {
     digest_description: json['digest_description'] as String,
     sender_name: json['sender_name'] as String,
     sender_public_key: json['sender_public_key'] as String,
-    chat_message_id: json['chat_message_id'] as String,
   );
 }
 
@@ -35,7 +34,6 @@ Map<String, dynamic> _$QuoteMessageToJson(QuoteMessage instance) =>
       'digest_description': instance.digest_description,
       'sender_name': instance.sender_name,
       'sender_public_key': instance.sender_public_key,
-      'chat_message_id': instance.chat_message_id,
     };
 
 T _$enumDecode<T>(

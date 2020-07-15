@@ -68,13 +68,13 @@ class ChatTimelineScene extends StatelessWidget {
                                 .firstWhere(
                                     (element) =>
                                         element.public_key ==
-                                        item.sender_public_key,
+                                        item.chatMessage.sender_public_key,
                                     orElse: () => null)
                                 ?.name ??
                             appData.myKeys
                                 .firstWhere((element) =>
                                     element.keypair.public_key ==
-                                    item.sender_public_key)
+                                    item.chatMessage.sender_public_key)
                                 .contact
                                 .name,
                         style: Theme.of(context).textTheme.subtitle1,
@@ -87,17 +87,17 @@ class ChatTimelineScene extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.share),
                       onPressed: () {
-                        showShareSheet(context, item.armored_message);
+                        showShareSheet(context, item.chatMessage.armored_message);
                       },
                     ),
                   ],
                 ),
-                Text(item.payload),
+                Text(item.chatMessage.payload),
                 SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    DateTime.fromMillisecondsSinceEpoch(item.compose_timestamp)
+                    DateTime.fromMillisecondsSinceEpoch(item.chatMessage.compose_timestamp)
                         .toIso8601String(),
                     style: Theme.of(context).textTheme.caption,
                   ),

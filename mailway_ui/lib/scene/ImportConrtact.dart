@@ -20,7 +20,7 @@ class ImportContactScene extends StatelessWidget {
         children: [
           ListTile(
             title: Text(
-                'Import a QR code or Bizcard file to add a contact. You can export any Bizcard from the contact list'),
+                'Scan a QR code or Bizcard file to add a contact.  You can export any Bizcard from the contact list'),
           ),
           ListTile(
             onTap: () async {

@@ -10,10 +10,11 @@ import kotlinx.serialization.Serializable
 data class ChatWithChatMessagesWithChatMemberNameStubs(
     @Embedded val chat: Chat,
     @Relation(
+        entity = ChatMessage::class,
         parentColumn = "chatId",
         entityColumn = "chatId"
     )
-    val messages: List<ChatMessage>,
+    val messages: List<ChatMessageAndQuoteMessage>,
     @Relation(
         parentColumn = "chatId",
         entityColumn = "chatMemberNameStubId",
