@@ -90,6 +90,17 @@ class _ContactSceneState extends State<ContactScene> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: _ContactIdentityItem(
+                      onTap: () {
+                        Navigator.of(context, rootNavigator: true).push(
+                          MaterialPageRoute(
+                            builder: (context) => ContactInfoScene(
+                              contact: item.contact,
+                              keypair: item.keypair,
+                              channels: item.channels,
+                            ),
+                          ),
+                        );
+                      },
                       contact: item.contact,
                       keypair: item.keypair,
                     ),

@@ -26,6 +26,14 @@ class _DecryptSceneState extends State<DecryptScene> {
         context: context,
         builder: (context) => AlertDialog(
           title: Text("Can not find a key to decrypt"),
+          actions: [
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("ok"),
+            ),
+          ],
         ),
       );
       return;

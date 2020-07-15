@@ -5,6 +5,7 @@ import 'package:mailwayui/data/AppViewModel.dart';
 import 'package:mailwayui/data/entity/ContactAndKeyPairWithContactChannels.dart';
 import 'package:mailwayui/scene/ChatTimeline.dart';
 import 'package:mailwayui/scene/Decrypt.dart';
+import 'package:mailwayui/scene/ModifyContact.dart';
 import 'package:mailwayui/scene/RecipientSelect.dart';
 
 class InboxScene extends StatelessWidget {
@@ -24,6 +25,18 @@ class InboxScene extends StatelessWidget {
               Navigator.of(context).pop();
             },
             child: Text("Cancel"),
+          ),
+          FlatButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  fullscreenDialog: true,
+                  builder: (context) => ModifyContactScene(),
+                ),
+              );
+            },
+            child: Text("Create one"),
           ),
         ],
       ),
@@ -111,7 +124,7 @@ class InboxScene extends StatelessWidget {
               Navigator.of(context, rootNavigator: true).push(
                 MaterialPageRoute(
                   builder: (context) => ChatTimelineScene(
-                    data: item,
+                    chatId: item.chat.chatId,
                   ),
                 ),
               );

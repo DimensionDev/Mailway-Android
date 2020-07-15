@@ -38,5 +38,7 @@ data class ChatMessageAndQuoteMessage(
         parentColumn = "id",
         entityColumn = "chatMessageId"
     )
-    val quoteMessage: QuoteMessage
+    val quoteMessage: QuoteMessage?
 )
+
+

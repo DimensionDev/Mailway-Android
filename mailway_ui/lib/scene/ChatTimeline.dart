@@ -6,13 +6,14 @@ import 'package:mailwayui/scene/Compose.dart';
 import 'package:mailwayui/utils/shareSheet.dart';
 
 class ChatTimelineScene extends StatelessWidget {
-  final ChatWithChatMessagesWithChatMemberNameStubs data;
+  final String chatId;
 
-  const ChatTimelineScene({Key key, this.data}) : super(key: key);
+  const ChatTimelineScene({Key key, this.chatId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final appData = AppData.of(context);
+    final data = appData.chats.firstWhere((element) => element.chat.chatId == chatId);
 
     return Scaffold(
       appBar: AppBar(
@@ -45,6 +46,7 @@ class ChatTimelineScene extends StatelessWidget {
         child: Icon(Icons.reply_all),
       ),
       body: ListView.separated(
+        padding: EdgeInsets.only(bottom: 100),
         separatorBuilder: (context, index) => Divider(
           indent: 16,
           endIndent: 16,

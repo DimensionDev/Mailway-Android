@@ -131,9 +131,10 @@ class NtgeMethodCallHandler(private val scope: CoroutineScope, private val conte
                     return
                 }
                 scope.launch {
-                    Message.deserialize(message).use { ntgeMessage ->
-                        database.contactDao().getContactsWithoutPrivateKey().forEach {
-                            runCatching {
+
+                    database.contactDao().getContactsWithPrivateKey().forEach {
+                        runCatching {
+                            Message.deserialize(message).use { ntgeMessage ->
                                 Ed25519PrivateKey.deserialize(it.keypair.private_key!!)
                                     .use { ed25519PrivateKey ->
                                         ed25519PrivateKey.toX25519()
@@ -147,56 +148,56 @@ class NtgeMethodCallHandler(private val scope: CoroutineScope, private val conte
                                                 }
                                         }
                                     }
-                            }.onFailure {
-
-                            }.onSuccess { data ->
-                                val extra = data.second.fromMessagePack<MailwayMessageExtra>()
-                                val decResult = if (extra.payload_kind != PayloadKind.plaintext) {
-                                    data.first.toString(Charsets.UTF_8)
+                            }
+                        }.onFailure {
+                            it.printStackTrace()
+                        }.onSuccess { data ->
+                            val extra = data.second.fromMessagePack<MailwayMessageExtra>()
+                            val decResult = if (extra.payload_kind == PayloadKind.plaintext) {
+                                data.first.toString(Charsets.UTF_8)
+                            } else {
+                                val fileName = UUID.randomUUID().toString()
+                                File(context.dataDir, fileName).let { file ->
+                                    file.createNewFile()
+                                    file.writeBytes(data.first)
+                                }
+                                fileName
+                            }
+                            val quoteDigest = if (extra.quote_message != null) {
+                                if (extra.quote_message.digest_kind == PayloadKind.plaintext) {
+                                    extra.quote_message.digest.toString(Charsets.UTF_8)
                                 } else {
                                     val fileName = UUID.randomUUID().toString()
                                     File(context.dataDir, fileName).let { file ->
                                         file.createNewFile()
-                                        file.writeBytes(data.first)
+                                        file.writeBytes(extra.quote_message.digest)
                                     }
                                     fileName
                                 }
-                                val quoteDigest = if (extra.quote_message != null) {
-                                    if (extra.quote_message.digest_kind == PayloadKind.plaintext) {
-                                        extra.quote_message.digest.toString(Charsets.UTF_8)
-                                    } else {
-                                        val fileName = UUID.randomUUID().toString()
-                                        File(context.dataDir, fileName).let { file ->
-                                            file.createNewFile()
-                                            file.writeBytes(extra.quote_message.digest)
-                                        }
-                                        fileName
-                                    }
-                                } else {
-                                    null
-                                }
-
-                                result.success(DecodeResult(decResult, MailwayMessageExtra2(
-                                    version = extra.version,
-                                    sender_key = extra.sender_key,
-                                    payload_kind = extra.payload_kind,
-                                    recipient_keys = extra.recipient_keys,
-                                    message_id = extra.message_id,
-                                    quote_message = extra.quote_message?.let {
-                                        MailwayExtraQuoteMessage2(
-                                            id = it.id,
-                                            digest = quoteDigest ?: "",
-                                            digest_kind = it.digest_kind,
-                                            digest_description = it.digest_description,
-                                            sender_name = it.sender_name,
-                                            sender_public_key = it.sender_public_key
-                                        )
-                                    }
-                                )).let { decodeResult ->
-                                    JSON.stringify(DecodeResult.serializer(), decodeResult)
-                                })
-                                return@launch
+                            } else {
+                                null
                             }
+
+                            result.success(DecodeResult(decResult, MailwayMessageExtra2(
+                                version = extra.version,
+                                sender_key = extra.sender_key,
+                                payload_kind = extra.payload_kind,
+                                recipient_keys = extra.recipient_keys,
+                                message_id = extra.message_id,
+                                quote_message = extra.quote_message?.let {
+                                    MailwayExtraQuoteMessage2(
+                                        id = it.id,
+                                        digest = quoteDigest ?: "",
+                                        digest_kind = it.digest_kind,
+                                        digest_description = it.digest_description,
+                                        sender_name = it.sender_name,
+                                        sender_public_key = it.sender_public_key
+                                    )
+                                }
+                            )).let { decodeResult ->
+                                JSON.stringify(DecodeResult.serializer(), decodeResult)
+                            })
+                            return@launch
                         }
                     }
                     result.error("06", "cannot decode message", "private key not found")
