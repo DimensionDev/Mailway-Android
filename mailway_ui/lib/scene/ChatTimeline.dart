@@ -13,7 +13,8 @@ class ChatTimelineScene extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appData = AppData.of(context);
-    final data = appData.chats.firstWhere((element) => element.chat.chatId == chatId);
+    final data =
+        appData.chats.firstWhere((element) => element.chat.chatId == chatId);
 
     return Scaffold(
       appBar: AppBar(
@@ -68,17 +69,21 @@ class ChatTimelineScene extends StatelessWidget {
                       child: Text(
                         data.chatMemberNameStubs
                                 .firstWhere(
-                                    (element) =>
-                                        element.public_key ==
-                                        item.chatMessage.sender_public_key,
-                                    orElse: () => null)
+                                  (element) =>
+                                      element.public_key ==
+                                      item.chatMessage.sender_public_key,
+                                  orElse: () => null,
+                                )
                                 ?.name ??
                             appData.myKeys
-                                .firstWhere((element) =>
-                                    element.keypair.public_key ==
-                                    item.chatMessage.sender_public_key)
-                                .contact
-                                .name,
+                                .firstWhere(
+                                  (element) =>
+                                      element.keypair.public_key ==
+                                      item.chatMessage.sender_public_key,
+                                  orElse: () => null,
+                                )
+                                ?.contact
+                                ?.name ?? item.chatMessage.sender_public_key,
                         style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ),
@@ -89,7 +94,9 @@ class ChatTimelineScene extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.share),
                       onPressed: () {
-                        showShareSheet(context, item.chatMessage.armored_message, fileName: "${item.chatMessage.message_id}.mem");
+                        showShareSheet(
+                            context, item.chatMessage.armored_message,
+                            fileName: "${item.chatMessage.message_id}.mem");
                       },
                     ),
                   ],
@@ -99,7 +106,8 @@ class ChatTimelineScene extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    DateTime.fromMillisecondsSinceEpoch(item.chatMessage.compose_timestamp)
+                    DateTime.fromMillisecondsSinceEpoch(
+                            item.chatMessage.compose_timestamp)
                         .toIso8601String(),
                     style: Theme.of(context).textTheme.caption,
                   ),
